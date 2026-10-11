@@ -76,6 +76,7 @@ async def ingest_dataset(
             filename=dataset_record.filename,
             workspace_id=dataset_record.workspace_id,
             row_count=cleaned_result["row_count"],
+            rows_processed=cleaned_result["row_count"],
             columns=cleaned_result["columns"],
             cleaning_log=cleaned_result["cleaning_log"],
             cleaned_at=cleaned_result["cleaned_at"],

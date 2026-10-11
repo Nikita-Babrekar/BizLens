@@ -18,6 +18,7 @@ class IngestionResponse(BaseModel):
     filename: str
     workspace_id: Optional[int] = None
     row_count: int
+    rows_processed: Optional[int] = None
     columns: List[str]
     cleaning_log: List[CleaningLogEntry]
     cleaned_at: datetime
