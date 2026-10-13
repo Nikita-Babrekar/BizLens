@@ -177,3 +177,131 @@ export async function fetchActiveOverviewKPIs(
 
   return await response.json();
 }
+
+// ---------------- Root Cause Analysis Schemas ---------------- //
+
+export interface RootCauseNode {
+  id: string;
+  x: number;
+  y: number;
+  label: string;
+  sub: string;
+  dimension: string;
+  contribution: number;
+  confidence?: number | null;
+  tone: 'red' | 'amber' | 'green' | 'blue' | 'gray';
+  impact_amount?: number | null;
+}
+
+export interface RootCauseEdge {
+  from: string;
+  to: string;
+}
+
+export interface RootCauseLinePoint {
+  date: string;
+  actual: number;
+  baseline?: number | null;
+  is_anomaly: boolean;
+}
+
+export interface RootCauseSummary {
+  title: string;
+  severity: 'Critical anomaly' | 'Major anomaly' | 'Moderate deviation' | 'Stable';
+  drop_or_spike_percentage: number;
+  period_start?: string | null;
+  period_end?: string | null;
+  confidence: number;
+  explanation: string;
+}
+
+export interface RootCauseResponse {
+  summary: RootCauseSummary;
+  nodes: RootCauseNode[];
+  edges: RootCauseEdge[];
+  line_graph: RootCauseLinePoint[];
+  analyzed_dimensions: string[];
+  total_revenue_impact: number;
+  meta: Record<string, any>;
+}
+
+export interface RootCausePayload {
+  data?: Record<string, any>[];
+  dataset_id?: number;
+  revenue_column?: string;
+  date_column?: string;
+  product_column?: string;
+  region_column?: string;
+  stock_column?: string;
+}
+
+/**
+ * Fetches dynamic root cause insights & evidence graph from active backend session
+ * or by dataset ID.
+ */
+export async function fetchActiveRootCause(
+  datasetId?: number
+): Promise<RootCauseResponse> {
+  const url = datasetId
+    ? `${API_BASE_URL}/api/root-cause?dataset_id=${datasetId}`
+    : `${API_BASE_URL}/api/root-cause`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Failed to fetch root cause analysis (${response.status})`;
+    try {
+      const errorJson = await response.json();
+      if (errorJson?.detail) {
+        errorMessage =
+          typeof errorJson.detail === "string"
+            ? errorJson.detail
+            : JSON.stringify(errorJson.detail);
+      }
+    } catch {
+      // retain generic
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Posts dataset payload to compute dynamic root-cause insights & evidence graph.
+ */
+export async function fetchRootCause(
+  payload: RootCausePayload | Record<string, any>[]
+): Promise<RootCauseResponse> {
+  const body = Array.isArray(payload) ? { data: payload } : payload;
+  const response = await fetch(`${API_BASE_URL}/api/root-cause`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Failed to compute root cause analysis (${response.status})`;
+    try {
+      const errorJson = await response.json();
+      if (errorJson?.detail) {
+        errorMessage =
+          typeof errorJson.detail === "string"
+            ? errorJson.detail
+            : JSON.stringify(errorJson.detail);
+      }
+    } catch {
+      // retain generic
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}

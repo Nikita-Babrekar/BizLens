@@ -13,11 +13,11 @@ if _parent_dir not in sys.path:
 try:
     from .database import engine
     from . import models
-    from .routers import ingest, overview
+    from .routers import ingest, overview, anomaly, root_cause
 except (ImportError, ValueError):
     from app.database import engine
     from app import models
-    from app.routers import ingest, overview
+    from app.routers import ingest, overview, anomaly, root_cause
 
 # Ensure SQLite database tables are created
 models.Base.metadata.create_all(bind=engine)
@@ -55,6 +55,8 @@ app.add_middleware(
 # Include core feature routers
 app.include_router(ingest.router, prefix="/api/ingest", tags=["Ingest"])
 app.include_router(overview.router, prefix="/api/overview", tags=["Overview"])
+app.include_router(anomaly.router, prefix="/api/anomaly", tags=["Anomaly"])
+app.include_router(root_cause.router, prefix="/api/root-cause", tags=["Root Cause"])
 
 
 @app.get("/", tags=["Health"])
