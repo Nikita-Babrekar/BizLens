@@ -7,11 +7,13 @@ try:
     from ..models import Dataset
     from ..schemas import IngestionResponse
     from ..services.cleaner import clean_file_data
+    from ..services.session_store import set_active_dataset
 except (ImportError, ValueError):
     from app.database import get_db
     from app.models import Dataset
     from app.schemas import IngestionResponse
     from app.services.cleaner import clean_file_data
+    from app.services.session_store import set_active_dataset
 
 router = APIRouter()
 
@@ -70,6 +72,10 @@ async def ingest_dataset(
         db.add(dataset_record)
         db.commit()
         db.refresh(dataset_record)
+
+        # Store in active session cache for immediate KPI calculation
+        if "df" in cleaned_result and cleaned_result["df"] is not None:
+            set_active_dataset(cleaned_result["df"], dataset_id=dataset_record.id)
 
         return IngestionResponse(
             dataset_id=dataset_record.id,

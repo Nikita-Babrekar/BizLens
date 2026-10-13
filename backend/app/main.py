@@ -36,7 +36,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration allowing frontend clients (e.g. Next.js on port 3000)
+# CORS configuration allowing frontend clients (e.g. Next.js on localhost or production deployment)
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -46,6 +46,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

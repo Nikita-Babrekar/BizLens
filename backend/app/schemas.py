@@ -48,6 +48,39 @@ class KPISummary(BaseModel):
     total_orders: int
     revenue_by_region: List[RegionRevenue]
     revenue_over_time: List[TimeSeriesRevenue]
+    detected_columns: Optional[Dict[str, Optional[str]]] = None
+
+
+class TotalRevenueResponse(BaseModel):
+    total_revenue: float
+    revenue_column_used: Optional[str] = None
+    currency: Optional[str] = "USD"
+
+
+class AOVResponse(BaseModel):
+    average_order_value: float
+    total_revenue: float
+    total_orders: int
+    order_id_column_used: Optional[str] = None
+
+
+class RevenueByRegionResponse(BaseModel):
+    total_revenue: float
+    region_column_used: Optional[str] = None
+    revenue_by_region: List[RegionRevenue]
+
+
+class RevenueOverTimeResponse(BaseModel):
+    total_revenue: float
+    date_column_used: Optional[str] = None
+    revenue_over_time: List[TimeSeriesRevenue]
+
+
+class SessionStatusResponse(BaseModel):
+    active_dataset: bool
+    dataset_id: Optional[int] = None
+    row_count: int
+    columns: List[str]
 
 
 class OverviewKPIRequest(BaseModel):
