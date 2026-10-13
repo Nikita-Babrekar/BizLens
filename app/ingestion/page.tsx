@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Database,
@@ -15,6 +16,7 @@ import DatasetUploader from '@/components/DatasetUploader';
 import { IngestionResponse } from '@/lib/api';
 
 export default function IngestionPage() {
+  const router = useRouter();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [recentUploads, setRecentUploads] = useState<IngestionResponse[]>([]);
 
@@ -40,7 +42,7 @@ export default function IngestionPage() {
               className="flex items-center gap-1.5 rounded-lg border border-[#e2e8f0] px-3 py-1.5 text-xs font-semibold text-[#536079] hover:border-[#315efb] hover:text-[#315efb] dark:border-[#1e293b] dark:text-[#94a3b8] dark:hover:text-white transition"
             >
               <ArrowLeft className="size-3.5" />
-              <span>Back to Dashboard</span>
+              <span>Back to Workspace</span>
             </Link>
             <div className="h-4 w-px bg-[#e2e8f0] dark:bg-[#1e293b]" />
             <div>
@@ -53,10 +55,18 @@ export default function IngestionPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 rounded-full bg-[#e7f8f0] px-3 py-1 text-xs font-semibold text-[#14885c] dark:bg-[#10b981]/20 dark:text-[#34d399]">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/overview"
+              className="flex items-center gap-1.5 rounded-lg border border-[#e2e8f0] bg-white px-3 py-1.5 text-xs font-semibold text-[#536079] hover:border-[#315efb] hover:text-[#315efb] dark:border-[#1e293b] dark:bg-[#13203c] dark:text-[#94a3b8] transition"
+            >
+              <LayoutDashboard className="size-3.5" />
+              <span>View Overview</span>
+            </Link>
+
+            <span className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#e7f8f0] px-3 py-1 text-xs font-semibold text-[#14885c] dark:bg-[#10b981]/20 dark:text-[#34d399]">
               <span className="size-2 rounded-full bg-[#10b981] animate-pulse" />
-              API: http://localhost:8000
+              FastAPI Pipeline
             </span>
           </div>
         </div>
@@ -68,6 +78,7 @@ export default function IngestionPage() {
         <DatasetUploader
           onSuccess={handleUploadSuccess}
           notify={handleNotify}
+          onNavigateToOverview={() => router.push('/overview')}
         />
 
         {/* Upload History / Queue List if multiple uploaded */}
@@ -104,11 +115,11 @@ export default function IngestionPage() {
                     </div>
                   </div>
                   <Link
-                    href="/"
+                    href="/overview"
                     className="flex items-center gap-1 text-xs font-semibold text-[#315efb] hover:underline dark:text-[#82a3ff]"
                   >
                     <LayoutDashboard className="size-3.5" />
-                    View Overview
+                    See Dashboard
                   </Link>
                 </div>
               ))}

@@ -56,9 +56,9 @@ export interface ProfileSlideOverProps {
 }
 
 export const STORES = [
-  { id: '1', name: 'My Coffee Shop', branch: 'Downtown Flagship', revenue: '$428k/mo', status: 'Active' },
-  { id: '2', name: 'Coffee Shop - West End', branch: 'West End Mall', revenue: '$184k/mo', status: 'Active' },
-  { id: '3', name: 'Roastery & Lab', branch: 'Industrial Parkway', revenue: '$92k/mo', status: 'Production Hub' },
+  { id: '1', name: 'My Coffee Shop', branch: 'Downtown Flagship', revenue: '₹428k/mo', status: 'Active' },
+  { id: '2', name: 'Coffee Shop - West End', branch: 'West End Mall', revenue: '₹184k/mo', status: 'Active' },
+  { id: '3', name: 'Roastery & Lab', branch: 'Industrial Parkway', revenue: '₹92k/mo', status: 'Production Hub' },
 ]
 
 export default function ProfileSlideOver({
@@ -559,7 +559,7 @@ export default function ProfileSlideOver({
                     <label className="text-[11px] font-semibold uppercase tracking-wider text-[#7988a2]">
                       Currency Format
                     </label>
-                    <p className="mt-1 text-xs font-semibold">USD ($) · Standard 2 Decimals</p>
+                    <p className="mt-1 text-xs font-semibold">INR (₹) · Standard 2 Decimals</p>
                   </div>
                 </div>
               </div>

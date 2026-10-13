@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Upload,
   FileSpreadsheet,
@@ -17,22 +18,34 @@ import {
   FileCheck,
   Calendar,
   Hash,
-  Type
+  Type,
+  LayoutDashboard
 } from 'lucide-react';
 import { uploadDataset, IngestionResponse, CleaningLogEntry } from '@/lib/api';
+import { useDataset } from '@/context/DatasetContext';
 
 interface DatasetUploaderProps {
   onSuccess?: (result: IngestionResponse) => void;
   notify?: (message: string) => void;
+  onNavigateToOverview?: () => void;
 }
 
-export default function DatasetUploader({ onSuccess, notify }: DatasetUploaderProps) {
+export default function DatasetUploader({ onSuccess, notify, onNavigateToOverview }: DatasetUploaderProps) {
+  const { uploadedData, setUploadedData, fetchMetricsForDataset, clearDataset } = useDataset();
+
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<IngestionResponse | null>(null);
+  const [result, setResult] = useState<IngestionResponse | null>(uploadedData);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state with global context so previously uploaded file is preserved
+  useEffect(() => {
+    if (uploadedData) {
+      setResult(uploadedData);
+    }
+  }, [uploadedData]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -57,7 +70,6 @@ export default function DatasetUploader({ onSuccess, notify }: DatasetUploaderPr
     }
 
     setSelectedFile(file);
-    setResult(null);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -85,6 +97,10 @@ export default function DatasetUploader({ onSuccess, notify }: DatasetUploaderPr
     try {
       const response = await uploadDataset(selectedFile);
       setResult(response);
+      setUploadedData(response);
+      // Pre-compute overview KPIs for instant dashboard transition
+      fetchMetricsForDataset(response);
+
       if (notify) {
         notify(`Successfully cleaned and ingested ${response.filename} (${response.rows_processed} rows)`);
       }
@@ -101,10 +117,18 @@ export default function DatasetUploader({ onSuccess, notify }: DatasetUploaderPr
 
   const handleReset = () => {
     setSelectedFile(null);
-    setResult(null);
     setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleClearAll = () => {
+    handleReset();
+    setResult(null);
+    clearDataset();
+    if (notify) {
+      notify('Dataset cleared from workspace session.');
     }
   };
 
@@ -180,13 +204,27 @@ export default function DatasetUploader({ onSuccess, notify }: DatasetUploaderPr
                 <Upload className="size-6" />
               </div>
               <p className="text-sm font-semibold text-[#15213a] dark:text-white">
-                Drag and drop your dataset here, or{' '}
-                <span className="text-[#315efb] underline underline-offset-2 hover:text-[#2548c7]">
-                  browse
-                </span>
+                {result ? (
+                  <>
+                    Upload another dataset to replace{' '}
+                    <span className="text-[#315efb]">{result.filename}</span>, or{' '}
+                    <span className="text-[#315efb] underline underline-offset-2 hover:text-[#2548c7]">
+                      browse
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Drag and drop your dataset here, or{' '}
+                    <span className="text-[#315efb] underline underline-offset-2 hover:text-[#2548c7]">
+                      browse
+                    </span>
+                  </>
+                )}
               </p>
               <p className="mt-1.5 text-xs text-[#8491ac]">
-                Supports CSV (.csv) and Excel (.xlsx, .xls) up to 50 MB
+                {result
+                  ? `Currently active: ${result.filename} (${result.rows_processed.toLocaleString()} rows)`
+                  : 'Supports CSV (.csv) and Excel (.xlsx, .xls) up to 50 MB'}
               </p>
             </>
           ) : (
@@ -281,6 +319,54 @@ export default function DatasetUploader({ onSuccess, notify }: DatasetUploaderPr
       {/* Results Dashboard Card */}
       {result && (
         <div className="space-y-6 animate-in fade-in-50 duration-300">
+          {/* Prominent Success Action Banner with "See Dashboard" button */}
+          <div className="relative overflow-hidden rounded-xl border border-[#315efb]/30 bg-gradient-to-r from-[#eef3ff] via-[#f4f7ff] to-[#e8f0fe] p-5 shadow-sm dark:border-[#315efb]/40 dark:from-[#111e3b] dark:via-[#132347] dark:to-[#0f1b34]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3.5">
+                <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#315efb] text-white shadow-md shadow-[#315efb]/25">
+                  <CheckCircle2 className="size-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#15213a] dark:text-white">
+                      Dataset Cleaned & Ready for Live Analytics
+                    </h3>
+                    <span className="rounded-full bg-[#10b981]/15 px-2 py-0.5 text-[10px] font-bold text-[#10b981] dark:bg-[#10b981]/25 dark:text-[#34d399]">
+                      Active
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-[#536079] dark:text-[#94a3b8]">
+                    <strong className="text-[#15213a] dark:text-white">{result.filename}</strong> ·{' '}
+                    {result.rows_processed.toLocaleString()} rows cleaned and synchronized with live BI overview.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                {onNavigateToOverview ? (
+                  <button
+                    type="button"
+                    onClick={onNavigateToOverview}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#315efb] px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-[#315efb]/25 hover:bg-[#2548c7] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <LayoutDashboard className="size-4" />
+                    <span>See Dashboard</span>
+                    <ArrowRight className="size-3.5" />
+                  </button>
+                ) : (
+                  <Link
+                    href="/overview"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#315efb] px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-[#315efb]/25 hover:bg-[#2548c7] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <LayoutDashboard className="size-4" />
+                    <span>See Dashboard</span>
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Metrics Overview Ribbon */}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-[#e3e7ef] bg-white p-4 shadow-sm dark:border-[#1e293b] dark:bg-[#101a31]">

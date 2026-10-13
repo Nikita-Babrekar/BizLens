@@ -140,3 +140,40 @@ export async function fetchOverviewKPIs(
 
   return await response.json();
 }
+
+/**
+ * Fetches calculated core KPIs directly from the active backend session dataset
+ * or by dataset ID via GET /api/overview.
+ */
+export async function fetchActiveOverviewKPIs(
+  datasetId?: number
+): Promise<KPISummary> {
+  const url = datasetId
+    ? `${API_BASE_URL}/api/overview?dataset_id=${datasetId}`
+    : `${API_BASE_URL}/api/overview`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Failed to fetch active KPIs (${response.status})`;
+    try {
+      const errorJson = await response.json();
+      if (errorJson?.detail) {
+        errorMessage =
+          typeof errorJson.detail === "string"
+            ? errorJson.detail
+            : JSON.stringify(errorJson.detail);
+      }
+    } catch {
+      // retain generic error
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+}
