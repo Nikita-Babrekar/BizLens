@@ -215,11 +215,34 @@ export interface RootCauseSummary {
   explanation: string;
 }
 
+export interface CausalFactor {
+  category: 'inventory_stockout' | 'price_drop' | 'product_availability' | 'regional_dip' | 'general';
+  factor_name: string;
+  impact_percentage: number;
+  explanation: string;
+  metric_before?: number | null;
+  metric_during?: number | null;
+  duration_days?: number | null;
+  confidence: number;
+}
+
+export interface AnomalyWindow {
+  start_date: string;
+  end_date: string;
+  actual_revenue: number;
+  baseline_revenue: number;
+  drop_percentage: number;
+  severity: 'Critical anomaly' | 'Major anomaly' | 'Moderate deviation';
+}
+
 export interface RootCauseResponse {
+  primary_cause: string;
+  root_causes: CausalFactor[];
   summary: RootCauseSummary;
   nodes: RootCauseNode[];
   edges: RootCauseEdge[];
   line_graph: RootCauseLinePoint[];
+  anomaly_windows?: AnomalyWindow[];
   analyzed_dimensions: string[];
   total_revenue_impact: number;
   meta: Record<string, any>;
@@ -228,11 +251,14 @@ export interface RootCauseResponse {
 export interface RootCausePayload {
   data?: Record<string, any>[];
   dataset_id?: number;
+  date_start?: string;
+  date_end?: string;
   revenue_column?: string;
   date_column?: string;
   product_column?: string;
   region_column?: string;
   stock_column?: string;
+  price_column?: string;
 }
 
 /**

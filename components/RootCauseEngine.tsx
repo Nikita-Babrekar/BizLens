@@ -132,6 +132,19 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
   const displayData: RootCauseResponse = useMemo(() => {
     if (data) return data;
     return {
+      primary_cause: "Item 'Leather Jackets' out of stock for 7 days caused a 24.5% revenue drop (detected Aug 10 to Aug 17).",
+      root_causes: [
+        {
+          category: 'inventory_stockout',
+          factor_name: 'Leather Jackets',
+          impact_percentage: 41.0,
+          explanation: 'Item Leather Jackets experienced out of stock for 7 days, causing critical fulfillment halt.',
+          metric_before: 120,
+          metric_during: 0,
+          duration_days: 7,
+          confidence: 93.0,
+        },
+      ],
       summary: {
         title: 'Revenue dropped 24.5% between Aug 10 to Aug 17',
         severity: 'Critical anomaly',
@@ -140,7 +153,7 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
         period_end: 'Aug 17',
         confidence: 92.0,
         explanation:
-          'BizLens traced the signal through 4 connected dimensions with 92% confidence.',
+          "Item 'Leather Jackets' out of stock for 7 days caused a 24.5% revenue drop in North America.",
       },
       nodes: [
         { id: 'root', x: 620, y: 220, label: 'Revenue −24.5%', sub: 'Root anomaly', dimension: 'anomaly', contribution: 100, confidence: null, tone: 'red' },
@@ -166,6 +179,16 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
         { date: 'Aug 17', actual: 34000, baseline: 45500, is_anomaly: true },
         { date: 'Aug 24', actual: 42000, baseline: 44000, is_anomaly: false },
         { date: 'Aug 31', actual: 48500, baseline: 45000, is_anomaly: false },
+      ],
+      anomaly_windows: [
+        {
+          start_date: 'Aug 10',
+          end_date: 'Aug 17',
+          actual_revenue: 34550,
+          baseline_revenue: 45250,
+          drop_percentage: -24.5,
+          severity: 'Critical anomaly',
+        },
       ],
       analyzed_dimensions: ['Region', 'Product', 'Stock Level'],
       total_revenue_impact: 22400,
@@ -259,33 +282,64 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
         </div>
       </div>
 
-      {/* ── Anomaly Alert Banner ── */}
-      <div className="rounded-xl border border-[#f3c7c1] bg-[#fff8f7] p-5 dark:border-[#ef4444]/30 dark:bg-[#ef4444]/10 transition-colors">
-        <div className="flex items-start gap-3">
-          <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#ffe4e0] text-[#df5d51] dark:bg-[#ef4444]/20 dark:text-[#f87171]">
-            <AlertTriangle size={18} />
+      {/* ── Anomaly Alert Banner with Detective Primary Cause ── */}
+      <div className="rounded-xl border-2 border-[#f3c7c1] bg-[#fff8f7] p-5 shadow-sm dark:border-[#ef4444]/40 dark:bg-[#1a111a] transition-all">
+        <div className="flex items-start gap-3.5">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#ffe4e0] text-[#df5d51] shadow-sm dark:bg-[#ef4444]/25 dark:text-[#f87171]">
+            <AlertTriangle size={22} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-[14px] font-semibold text-[#1a2540] dark:text-white">
+              <h2 className="text-[15px] font-bold text-[#1a2540] dark:text-white">
                 {displayData.summary.title}
               </h2>
-              <span className="inline-flex items-center rounded-md bg-[#fff0ee] px-2 py-0.5 text-[10px] font-semibold text-[#d65347] dark:bg-[#ef4444]/20 dark:text-[#f87171]">
+              <span className="inline-flex items-center rounded-md bg-[#fff0ee] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#d65347] dark:bg-[#ef4444]/20 dark:text-[#f87171]">
                 {displayData.summary.severity}
               </span>
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#edf2ff] px-2.5 py-0.5 text-[10px] font-bold text-[#315efb] shadow-sm dark:bg-[#315efb]/20 dark:text-[#82a3ff]">
+                <Sparkles size={11} /> AI Detective Active
+              </span>
               {loading && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-[#315efb]">
-                  <Loader2 size={12} className="animate-spin" /> Analyzing uploaded dataset...
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#315efb]">
+                  <Loader2 size={12} className="animate-spin" /> Correlating inventory stocks & price drops...
                 </span>
               )}
             </div>
-            <p className="mt-1 text-[11px] text-[#8d7370] dark:text-[#cbd5e1]">
-              {displayData.summary.explanation}
-            </p>
+
+            {/* ── Detective Primary Cause Spotlight Card ── */}
+            <div className="mt-3 rounded-xl border border-[#f5b8b0] bg-white p-4 shadow-sm dark:border-[#ef4444]/30 dark:bg-[#121b2f]">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#ffe4e0] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#d65347] dark:bg-[#ef4444]/20 dark:text-[#f87171]">
+                  🔍 Primary Cause Diagnosed
+                </span>
+                <span className="text-[10px] font-semibold text-[#8a94a6] dark:text-[#94a3b8]">
+                  • Rule-based correlation
+                </span>
+              </div>
+              <p className="mt-1.5 text-[14px] font-bold text-[#15213a] dark:text-white">
+                {displayData.primary_cause || displayData.summary.explanation}
+              </p>
+              
+              {/* If granular ranked causal factors exist */}
+              {displayData.root_causes && displayData.root_causes.length > 0 && (
+                <div className="mt-2.5 flex flex-wrap gap-2 border-t border-[#f3f4f6] pt-2 dark:border-[#1e293b]">
+                  {displayData.root_causes.map((rc, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 rounded-md bg-[#fef2f2] px-2 py-1 text-[11px] font-medium text-[#991b1b] dark:bg-[#ef4444]/15 dark:text-[#fca5a5]"
+                    >
+                      <span className="size-1.5 rounded-full bg-[#ef4444]" />
+                      <strong>{rc.factor_name}:</strong> {rc.explanation} ({rc.impact_percentage}% impact)
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <button
             onClick={() => notify('Dismissed banner notification')}
-            className="text-[#a18a87] hover:text-[#1a2540] dark:text-[#94a3b8]"
+            className="text-[#a18a87] hover:text-[#1a2540] dark:text-[#94a3b8] transition"
+            title="Dismiss notification"
           >
             <X size={16} />
           </button>
@@ -451,7 +505,7 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
                     />
                     {/* Card Container */}
                     <rect
-                      width={NW}
+                      width={NW}  
                       height={NH}
                       rx={11}
                       fill={isSelected ? c.stroke : c.fill}
@@ -697,9 +751,9 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
                           </p>
                         )}
                         {row.is_anomaly && (
-                          <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-[#ef4444]">
-                            <AlertTriangle size={11} /> Flagged Anomaly Period
-                          </p>
+                          <div className="mt-1.5 flex items-center gap-1 rounded bg-[#fff0ee] px-1.5 py-0.5 text-[10px] font-bold text-[#ef4444] dark:bg-[#ef4444]/20">
+                            <AlertTriangle size={11} /> Anomaly Window (Revenue Drop)
+                          </div>
                         )}
                       </div>
                     );
@@ -707,7 +761,36 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
                   return null;
                 }}
               />
-              {/* Baseline curve */}
+
+              {/* Shaded Anomaly Windows */}
+              {displayData.anomaly_windows && displayData.anomaly_windows.length > 0
+                ? displayData.anomaly_windows.map((w, idx) => (
+                    <ReferenceArea
+                      key={idx}
+                      x1={w.start_date}
+                      x2={w.end_date}
+                      fill="#ef4444"
+                      fillOpacity={0.12}
+                      stroke="#ef4444"
+                      strokeOpacity={0.4}
+                      strokeDasharray="3 3"
+                    />
+                  ))
+                : displayData.line_graph
+                    .filter((p) => p.is_anomaly)
+                    .map((p, idx) => (
+                      <ReferenceArea
+                        key={idx}
+                        x1={p.date}
+                        x2={p.date}
+                        fill="#ef4444"
+                        fillOpacity={0.15}
+                        stroke="#ef4444"
+                        strokeDasharray="3 3"
+                      />
+                    ))}
+
+              {/* Baseline expected revenue curve */}
               <Line
                 type="monotone"
                 dataKey="baseline"
@@ -717,7 +800,8 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
                 dot={false}
                 name="Baseline"
               />
-              {/* Actual revenue curve */}
+
+              {/* Actual revenue trajectory curve */}
               <Line
                 type="monotone"
                 dataKey="actual"
@@ -727,15 +811,25 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
                   const { cx, cy, payload } = props;
                   if (payload.is_anomaly) {
                     return (
-                      <circle
-                        key={cx}
-                        cx={cx}
-                        cy={cy}
-                        r={5}
-                        fill="#ef4444"
-                        stroke="white"
-                        strokeWidth={2}
-                      />
+                      <g key={cx}>
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={6}
+                          fill="#ef4444"
+                          stroke="white"
+                          strokeWidth={2}
+                        />
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={9}
+                          fill="none"
+                          stroke="#ef4444"
+                          strokeWidth={1}
+                          strokeOpacity={0.4}
+                        />
+                      </g>
                     );
                   }
                   return (
@@ -753,6 +847,29 @@ export default function RootCauseEngine({ notify, onGoToIngestion }: RootCauseEn
             </LineChart>
           </ResponsiveContainer>
         </div>
+
+        {/* ── Anomaly Window Highlights Bar ── */}
+        {displayData.anomaly_windows && displayData.anomaly_windows.length > 0 && (
+          <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-[#edf0f5] pt-3 dark:border-[#1e293b]">
+            <span className="text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">
+              Detected Anomaly Intervals:
+            </span>
+            {displayData.anomaly_windows.map((w, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#fecaca] bg-[#fff5f5] px-2.5 py-1 text-[11px] font-semibold text-[#dc2626] dark:border-[#ef4444]/30 dark:bg-[#ef4444]/10 dark:text-[#f87171]"
+              >
+                <AlertTriangle size={12} />
+                <span>
+                  {w.start_date === w.end_date ? w.start_date : `${w.start_date} – ${w.end_date}`}:
+                </span>
+                <span className="font-bold">
+                  {w.drop_percentage}% vs. baseline
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
