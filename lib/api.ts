@@ -331,3 +331,88 @@ export async function fetchRootCause(
 
   return await response.json();
 }
+
+// ---------------- Sales Forecast & What-If Simulator Schemas ---------------- //
+
+export interface ForecastDataPoint {
+  period: string;
+  period_full?: string;
+  is_forecast: boolean;
+  historical_incremental?: number | null;
+  historical_baseline?: number | null;
+  baseline?: number | null;
+  baseline_lower?: number | null;
+  baseline_upper?: number | null;
+  incremental?: number | null;
+  incremental_best?: number | null;
+  incremental_worst?: number | null;
+  best_case_str?: string;
+  most_likely_str?: string;
+  worst_case_str?: string;
+}
+
+export interface ForecastSummary {
+  slider_price_pct: number;
+  slider_marketing_pct: number;
+  slider_delay_days: number;
+  baseline_total_revenue: number;
+  incremental_total_revenue: number;
+  net_incremental_lift: number;
+  lift_percentage: number;
+  baseline_total_str: string;
+  incremental_total_str: string;
+  lift_str: string;
+  elasticity_coefficient: number;
+  confidence_level: number;
+  ai_narrative: string;
+  divider_index: number;
+}
+
+export interface ForecastResponse {
+  series: ForecastDataPoint[];
+  summary: ForecastSummary;
+  units: string;
+}
+
+export interface ForecastSimulatePayload {
+  price_change_pct: number;
+  marketing_change_pct?: number;
+  delay_days?: number;
+  dataset_id?: number | null;
+  data?: Record<string, any>[];
+}
+
+/**
+ * Fetches dynamic sales forecast curves and What-If simulation from backend.
+ * Falls back gracefully to the Next.js internal API route if backend is offline.
+ */
+export async function fetchForecastSimulation(
+  payload: ForecastSimulatePayload
+): Promise<ForecastResponse> {
+  // Try Next.js route first which handles both FastAPI proxy and seamless fallback
+  try {
+    const res = await fetch("/api/forecast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // If Next.js internal route errored, try direct FastAPI backend
+  }
+
+  const directRes = await fetch(`${API_BASE_URL}/api/forecast/simulate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!directRes.ok) {
+    throw new Error(`Forecast calculation failed (${directRes.status})`);
+  }
+
+  return await directRes.json();
+}
+
