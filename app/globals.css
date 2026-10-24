@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+/* @import 'shadcn/tailwind.css'; */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * .6);
+  --radius-md: calc(var(--radius) * .8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root { color-scheme: light; --background: #f5f7fb; --foreground: #15213a; --card: #fff; --card-foreground: #15213a; --popover: #fff; --popover-foreground: #15213a; --primary: #315efb; --primary-foreground: #fff; --secondary: #eef2f8; --secondary-foreground: #536079; --muted: #f5f7fb; --muted-foreground: #778198; --accent: #e9efff; --accent-foreground: #315efb; --destructive: #ef6357; --border: #e3e7ef; --input: #e3e7ef; --ring: #315efb; --radius: .7rem; }
+
+.dark {
+  color-scheme: dark;
+  --background: #090f1d;
+  --foreground: #f1f5f9;
+  --card: #101a31;
+  --card-foreground: #f1f5f9;
+  --popover: #101a31;
+  --popover-foreground: #f1f5f9;
+  --primary: #315efb;
+  --primary-foreground: #fff;
+  --secondary: #1a2744;
+  --secondary-foreground: #94a3b8;
+  --muted: #0c1322;
+  --muted-foreground: #94a3b8;
+  --accent: #1e2c4f;
+  --accent-foreground: #60a5fa;
+  --destructive: #ef4444;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #3b82f6;
+}
+
+* { box-sizing: border-box; }
+html { background: #f5f7fb; }
+html.dark { background: #090f1d; color: #f1f5f9; }
+body { margin: 0; background: #f5f7fb; font-family: Arial, Helvetica, sans-serif; }
+html.dark body { background: #090f1d; color: #f1f5f9; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+::selection { background: #dce5ff; color: #15213a; }
+input[type='range'] { height: 4px; }
+@media (max-width: 767px) { main { padding-left: 0 !important; padding-right: 0 !important; } }
+
