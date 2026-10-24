@@ -39,3 +39,11 @@ backend/venv/
 
 # Local database
 backend/bizlens.db
+
+# Python environment and cache
+backend/venv/
+**/__pycache__/
+*.py[cod]
+
+# Local database
+backend/bizlens.db
