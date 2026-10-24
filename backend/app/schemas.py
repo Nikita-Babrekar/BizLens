@@ -95,6 +95,7 @@ class OverviewKPIRequest(BaseModel):
     date_column: Optional[str] = Field(None, description="Explicit name of the date/time column")
     order_id_column: Optional[str] = Field(None, description="Explicit name of the order/transaction ID column")
     dataset_id: Optional[int] = Field(None, description="Optional ID of saved dataset to persist metrics for")
+<<<<<<< HEAD
 
 
 # ---------------- Reports & Exports Schemas ---------------- #
@@ -169,3 +170,5 @@ class CopilotResponse(BaseModel):
         description="Proactive follow-up questions the user might want to ask",
     )
 
+=======
+>>>>>>> origin/main

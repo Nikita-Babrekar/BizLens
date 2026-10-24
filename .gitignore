@@ -12,6 +12,7 @@ __v0_jsx-dev-runtime.ts
 # Common ignores
 node_modules
 .next/
+<<<<<<< HEAD
 .DS_Store
 backend/venv/
 
@@ -37,3 +38,6 @@ node_modules/
 
 # Build files
 *.tsbuildinfo
+=======
+.DS_Store
+>>>>>>> origin/main

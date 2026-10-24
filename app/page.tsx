@@ -2,13 +2,18 @@
 
 import { useMemo, useState } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+<<<<<<< HEAD
 import { Activity, AlertTriangle, BarChart3, Bell, Bot, BrainCircuit, ChevronDown, ChevronLeft, ChevronRight, Database, Download, FileBarChart, FileSpreadsheet, FileText, HelpCircle, Key, LayoutDashboard, Loader2, Menu, MessageSquare, MoreHorizontal, Network, Plus, Search, Send, Settings, ShieldCheck, SlidersHorizontal, Sparkles, Upload, WandSparkles, X, Zap } from 'lucide-react'
+=======
+import { Activity, AlertTriangle, BarChart3, Bell, Bot, BrainCircuit, ChevronDown, ChevronLeft, ChevronRight, Database, Download, FileBarChart, FileSpreadsheet, FileText, HelpCircle, Key, LayoutDashboard, Menu, MessageSquare, MoreHorizontal, Network, Plus, Search, Send, Settings, ShieldCheck, SlidersHorizontal, Sparkles, Upload, WandSparkles, X, Zap } from 'lucide-react'
+>>>>>>> origin/main
 import ProfileDropdown from '@/components/ProfileDropdown'
 import ProfileSlideOver from '@/components/ProfileSlideOver'
 import DatasetUploader from '@/components/DatasetUploader'
 import DynamicOverview from '@/components/DynamicOverview'
 import RootCauseEngine from '@/components/RootCauseEngine'
 import SalesForecastWhatIf from '@/components/SalesForecastWhatIf'
+<<<<<<< HEAD
 import { useDataset } from '@/context/DatasetContext'
 import { downloadPDFReport, downloadCleanedDatasetCSV, createReportShareLink, sendCopilotChat } from '@/lib/api'
 
@@ -21,6 +26,8 @@ export interface ChatMessage {
   sql?: string;
 }
 
+=======
+>>>>>>> origin/main
 
 const revenue = [{ day: 'Jul 1', value: 38200 }, { day: 'Jul 8', value: 42100 }, { day: 'Jul 15', value: 39700 }, { day: 'Jul 22', value: 45800 }, { day: 'Jul 29', value: 47200 }, { day: 'Aug 5', value: 48100 }, { day: 'Aug 12', value: 36300 }, { day: 'Aug 19', value: 41200 }, { day: 'Aug 26', value: 44600 }, { day: 'Sep 2', value: 48900 }, { day: 'Sep 9', value: 52700 }]
 const categories = [{ name: 'Outerwear', value: 38 }, { name: 'Accessories', value: 26 }, { name: 'Footwear', value: 21 }, { name: 'Basics', value: 15 }]
@@ -51,9 +58,13 @@ export default function Page() {
   const [delay, setDelay] = useState(3);
   const [marketing, setMarketing] = useState(12);
   const [chat, setChat] = useState('');
+<<<<<<< HEAD
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const { uploadedData } = useDataset();
+=======
+  const [messages, setMessages] = useState<string[]>([]);
+>>>>>>> origin/main
 
   // Profile overlay states
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -77,6 +88,7 @@ export default function Page() {
 
   const marginImpact = useMemo(() => Math.round(18 + price * .8 - delay * 1.6 + marketing * .22), [price, delay, marketing]);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(''), 2600); };
+<<<<<<< HEAD
 
   const handleSendChat = async (promptText?: string) => {
     const textToSend = (typeof promptText === 'string' ? promptText : chat).trim();
@@ -131,6 +143,9 @@ export default function Page() {
       setIsChatLoading(false);
     }
   };
+=======
+  const sendChat = () => { if (!chat.trim()) return; setMessages([...messages, chat.trim()]); setChat(''); };
+>>>>>>> origin/main
 
   return <div className={`min-h-screen transition-colors duration-200 ${isDarkMode ? 'dark bg-[#090f1d] text-[#f1f5f9]' : 'bg-[#f5f7fb] text-[#15213a]'}`}>
     <header className={`fixed inset-x-0 top-0 z-40 flex h-[66px] items-center border-b px-5 backdrop-blur transition-colors ${
@@ -219,8 +234,13 @@ export default function Page() {
     </header>
 
     <aside className={`fixed bottom-0 left-0 top-[66px] z-30 hidden border-r border-[#e3e7ef] dark:border-[#1e293b] bg-[#101a31] text-white transition-all md:block ${collapsed ? 'w-[72px]' : 'w-[250px]'}`}><div className="flex h-full flex-col p-3"><div className={`mb-6 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-2 pt-2`}>{!collapsed && <span className="text-[10px] font-semibold uppercase tracking-[.15em] text-[#8491ac]">Workspace</span>}<button onClick={() => setCollapsed(!collapsed)} className="text-[#96a4bf] hover:text-white" aria-label="Collapse navigation">{collapsed ? <ChevronRight size={17}/> : <ChevronLeft size={17}/>}</button></div>{!collapsed && <button onClick={() => { setProfileActiveTab('profile'); setProfileSlideOverOpen(true); }} title="Click to manage store workspace" className="mb-5 flex items-center gap-2 rounded-lg bg-[#1b2948] px-3 py-2.5 text-left text-[12px] text-white hover:bg-[#23355c] transition"><span className="grid size-6 place-items-center rounded bg-[#e2e8ff] text-[10px] font-bold text-[#315efb]">MC</span><span className="flex-1 truncate">{workspace}</span><ChevronDown size={13} className="text-[#93a0bb]"/></button>}<nav className="flex flex-col gap-1">{nav.map(item => { const Icon = item.icon; return <button key={item.id} onClick={() => setActive(item.id)} title={item.label} className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition ${active === item.id ? 'bg-[#315efb] font-semibold text-white shadow-[0_6px_16px_rgba(49,94,251,.22)]' : 'text-[#aeb9cf] hover:bg-[#1b2948] hover:text-white'} ${collapsed ? 'justify-center' : ''}`}><Icon size={17}/>{!collapsed && <span>{item.label}</span>}{item.id === 'rootcause' && !collapsed && <span className="ml-auto size-1.5 rounded-full bg-[#ef6357]"/>}</button>})}</nav><div className="mt-auto rounded-xl bg-[#182642] p-3">{!collapsed ? <><div className="mb-2 flex items-center gap-2 text-[11px] font-semibold"><Bot size={15} className="text-[#8ea7ff]"/> AI co-pilot</div><p className="text-[10px] leading-4 text-[#93a0bb]">Your data is clean and ready. I found one anomaly worth investigating.</p><button onClick={() => setCopilot(true)} className="mt-3 text-[10px] font-semibold text-[#8ea7ff]">Open assistant →</button></> : <Bot size={17} className="mx-auto text-[#8ea7ff]"/>}</div></div></aside>
+<<<<<<< HEAD
     <main className={`min-h-screen pt-[66px] transition-all ${collapsed ? 'md:pl-[72px]' : 'md:pl-[250px]'} ${copilot ? 'md:pr-[320px]' : ''}`}><div className="mx-auto max-w-[1400px] p-5 md:p-8">{active === 'dashboard' && <Dashboard notify={notify} onGoToIngestion={() => setActive('ingestion')}/>} {active === 'ingestion' && <Ingestion notify={notify} onNavigateToOverview={() => setActive('dashboard')}/>} {active === 'rootcause' && <RootCause notify={notify} onGoToIngestion={() => setActive('ingestion')}/>} {active === 'predictive' && <Predictive notify={notify}/>} {active === 'nlq' && <NLQ chat={chat} setChat={setChat} messages={messages} handleSendChat={handleSendChat} isLoading={isChatLoading}/>} {active === 'reports' && <Reports notify={notify} workspace={workspace}/>} {active === 'settings' && <SettingsView notify={notify} onOpenAccountCenter={(tab) => { setProfileActiveTab(tab); setProfileSlideOverOpen(true); }}/>}</div></main>
     {copilot && <Copilot onClose={() => setCopilot(false)} messages={messages} handleSendChat={handleSendChat} isLoading={isChatLoading} />}{!copilot && <button onClick={() => setCopilot(true)} className="fixed bottom-5 right-5 z-20 grid size-12 place-items-center rounded-full bg-[#315efb] text-white shadow-lg"><Bot size={20}/></button>}{toast && <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-[#15213a] px-4 py-3 text-xs font-medium text-white shadow-xl">{toast}</div>}
+=======
+    <main className={`min-h-screen pt-[66px] transition-all ${collapsed ? 'md:pl-[72px]' : 'md:pl-[250px]'} ${copilot ? 'md:pr-[292px]' : ''}`}><div className="mx-auto max-w-[1400px] p-5 md:p-8">{active === 'dashboard' && <Dashboard notify={notify} onGoToIngestion={() => setActive('ingestion')}/>} {active === 'ingestion' && <Ingestion notify={notify} onNavigateToOverview={() => setActive('dashboard')}/>} {active === 'rootcause' && <RootCause notify={notify} onGoToIngestion={() => setActive('ingestion')}/>} {active === 'predictive' && <Predictive notify={notify}/>} {active === 'nlq' && <NLQ chat={chat} setChat={setChat} messages={messages} sendChat={sendChat}/>} {active === 'reports' && <Reports notify={notify}/>} {active === 'settings' && <SettingsView notify={notify} onOpenAccountCenter={(tab) => { setProfileActiveTab(tab); setProfileSlideOverOpen(true); }}/>}</div></main>
+    {copilot && <Copilot onClose={() => setCopilot(false)} />}{!copilot && <button onClick={() => setCopilot(true)} className="fixed bottom-5 right-5 z-20 grid size-12 place-items-center rounded-full bg-[#315efb] text-white shadow-lg"><Bot size={20}/></button>}{toast && <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-[#15213a] px-4 py-3 text-xs font-medium text-white shadow-xl">{toast}</div>}
+>>>>>>> origin/main
 
     {/* Full Slide-Over Modal for Comprehensive Account & Workspace Center */}
     <ProfileSlideOver
@@ -281,6 +301,7 @@ function Predictive({ notify }: { notify: (s: string) => void }) {
   );
 }
 
+<<<<<<< HEAD
 function NLQ({
   chat,
   setChat,
@@ -655,6 +676,11 @@ function Reports({ notify, workspace = 'My Coffee Shop' }: { notify: (s: string)
   );
 }
 
+=======
+function NLQ({ chat, setChat, messages, sendChat }: any) { return <><Header eyebrow="Your data, in plain English" title="Ask BizLens"/><Card className="mx-auto max-w-[900px] overflow-hidden"><div className="border-b border-[#eef0f5] bg-[#fbfcff] p-5"><div className="flex items-center gap-3"><div className="grid size-9 place-items-center rounded-lg bg-[#e9efff] text-[#315efb]"><Bot size={18}/></div><div><h2 className="text-[14px] font-semibold">What would you like to know?</h2><p className="mt-1 text-[11px] text-[#8791a5]">Ask questions about your connected business data.</p></div></div><div className="mt-5 flex flex-wrap gap-2">{['Why did sales drop in August?','Which inventory item is losing money?','Forecast next month’s sales.'].map(q => <button onClick={() => setChat(q)} key={q} className="rounded-full border border-[#dfe5ef] bg-white px-3 py-2 text-[10px] text-[#617089] hover:border-[#315efb] hover:text-[#315efb]">{q}</button>)}</div></div><div className="min-h-[220px] p-5">{messages.length === 0 ? <div className="grid h-[190px] place-items-center text-center"><div><Search size={22} className="mx-auto mb-3 text-[#b4bfd2]"/><p className="text-[12px] font-semibold">Your answers will appear here</p><p className="mt-1 text-[11px] text-[#8e99ab]">Try one of the suggested questions to get started.</p></div></div> : <div className="flex flex-col gap-4">{messages.map((m: string) => <div key={m}><div className="ml-auto max-w-[75%] rounded-xl rounded-br-sm bg-[#315efb] p-3 text-[11px] text-white">{m}</div><div className="mt-3 max-w-[80%] rounded-xl rounded-bl-sm bg-[#f0f3f8] p-4 text-[11px] leading-5 text-[#4f5c72]"><div className="mb-2 flex items-center gap-2 font-semibold text-[#26365d]"><Sparkles size={13} className="text-[#315efb]"/> BizLens analysis</div>Revenue dipped 24.5% in August, primarily driven by a North America inventory stockout. I found a 12-day supplier delivery hold on Leather Jackets, accounting for 18% of the decline.<div className="mt-3 rounded-lg border border-[#e1e6f0] bg-white p-3 font-mono text-[10px] text-[#69758c]">SELECT region, SUM(revenue)<br/>FROM sales WHERE month = 'August'<br/>GROUP BY region;</div></div></div>)}</div>}</div><div className="border-t border-[#eef0f5] p-4"><div className="flex items-center gap-2 rounded-lg border border-[#dce3ef] bg-white px-3 py-2 focus-within:border-[#315efb]"><input value={chat} onChange={e => setChat(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder="Ask anything about your business data..." className="flex-1 bg-transparent text-[12px] outline-none placeholder:text-[#a0a9b8]"/><button onClick={sendChat} className="grid size-7 place-items-center rounded-md bg-[#315efb] text-white"><Send size={13}/></button></div><p className="mt-2 text-center text-[9px] text-[#9aa3b3]">Answers are generated from your connected datasets. Always review before making decisions.</p></div></Card></> }
+
+function Reports({ notify }: { notify: (s: string) => void }) { const [selected, setSelected] = useState(['KPI Summary','Anomaly logs','Forecasts']); return <><Header eyebrow="Share insights with your team" title="Reports & exports"/><div className="grid gap-5 xl:grid-cols-[1fr_1.2fr]"><Card className="p-5"><h2 className="text-[14px] font-semibold">Report modules</h2><p className="mt-1 text-[11px] text-[#8791a5]">Choose what to include in your next report.</p><div className="mt-5 flex flex-col gap-3">{['KPI Summary','Anomaly logs','Evidence graphs','Forecasts'].map(item => <button key={item} onClick={() => setSelected(selected.includes(item) ? selected.filter(x => x !== item) : [...selected,item])} className="flex items-center gap-3 text-left text-[11px]"><span className={`grid size-5 place-items-center rounded border ${selected.includes(item) ? 'border-[#315efb] bg-[#315efb] text-white' : 'border-[#d7deea]'}`}>{selected.includes(item) && '✓'}</span><span className="font-medium">{item}</span></button>)}</div><div className="mt-7 flex flex-col gap-2"><button onClick={() => notify('PDF report prepared for download')} className="rounded-lg bg-[#315efb] px-3 py-2.5 text-[11px] font-semibold text-white"><FileText size={14} className="mr-2 inline"/> Download PDF report</button><button onClick={() => notify('Cleaned CSV export prepared')} className="rounded-lg border border-[#dfe5ee] px-3 py-2.5 text-[11px] font-semibold text-[#536079]"><FileSpreadsheet size={14} className="mr-2 inline"/> Export cleaned dataset</button><button onClick={() => notify('Dashboard link copied')} className="rounded-lg border border-[#dfe5ee] px-3 py-2.5 text-[11px] font-semibold text-[#536079]">Share dashboard link</button></div></Card><Card className="overflow-hidden"><div className="border-b border-[#eef0f5] bg-[#fbfcff] p-5"><div className="flex items-center justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-wider text-[#8791a5]">Preview · September 17, 2024</p><h2 className="mt-1 text-[18px] font-semibold tracking-[-.03em]">My Coffee Shop · Business brief</h2></div><Badge tone="green">Ready to export</Badge></div></div><div className="p-5"><div className="grid grid-cols-3 gap-3">{[['Revenue','₹428k'],['Growth','+12.4%'],['Alerts','8']].map(x => <div key={x[0]} className="rounded-lg bg-[#f6f8fb] p-3"><p className="text-[10px] text-[#8791a5]">{x[0]}</p><strong className="mt-1 block text-[16px]">{x[1]}</strong></div>)}</div><div className="mt-5 h-28 rounded-lg bg-[#f5f7fb] p-3"><div className="mb-3 flex items-center gap-2 text-[10px] font-semibold"><BarChart3 size={13} className="text-[#315efb]"/> Revenue performance</div><div className="flex h-12 items-end gap-2">{[42,55,48,70,62,84,75,92,80,100].map((h,i) => <div key={i} className="flex-1 rounded-t bg-[#b5c4fa]" style={{height:`${h}%`}}/>)}</div></div><p className="mt-5 text-[10px] text-[#8994a8]">{selected.length} modules included · Generated by BizLens AI</p></div></Card></div></> }
+>>>>>>> origin/main
 
 function SettingsView({ notify, onOpenAccountCenter }: { notify: (s: string) => void; onOpenAccountCenter?: (tab: string) => void }) { 
   return <>
@@ -719,6 +745,7 @@ function SettingsView({ notify, onOpenAccountCenter }: { notify: (s: string) => 
     </div>
   </> 
 }
+<<<<<<< HEAD
 function Copilot({
   onClose,
   messages,
@@ -832,3 +859,6 @@ function Copilot({
     </aside>
   );
 }
+=======
+function Copilot({ onClose }: { onClose: () => void }) { return <aside className="fixed bottom-0 right-0 top-[66px] z-30 hidden w-[292px] border-l border-[#e3e7ef] bg-white lg:block"><div className="flex items-center justify-between border-b border-[#edf0f5] p-4"><div className="flex items-center gap-2"><div className="grid size-7 place-items-center rounded-lg bg-[#e9efff] text-[#315efb]"><Bot size={15}/></div><div><p className="text-[12px] font-semibold">AI co-pilot</p><p className="text-[9px] text-[#8c97aa]">Synchronized to Overview</p></div></div><button onClick={onClose} className="text-[#94a0b4]" aria-label="Close AI assistant"><X size={16}/></button></div><div className="flex h-[calc(100%-65px)] flex-col p-4"><div className="rounded-xl bg-[#f5f7fb] p-3 text-[11px] leading-5 text-[#536079]"><div className="mb-2 flex items-center gap-2 font-semibold text-[#26365d]"><Sparkles size={13} className="text-[#315efb]"/> Morning briefing</div>Your business is tracking <strong>12.4% above</strong> last month. I found one critical anomaly in North America revenue linked to an inventory stockout.</div><p className="mt-5 mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8994a8]">Suggested next steps</p><div className="flex flex-col gap-2">{['Why did North America drop?','Show products at risk','Forecast October revenue'].map(q => <button key={q} className="rounded-lg border border-[#e5e9f0] px-3 py-2 text-left text-[10px] text-[#637087] hover:border-[#315efb] hover:text-[#315efb]">{q}<ChevronRight size={12} className="float-right"/></button>)}</div><div className="mt-auto flex items-center gap-2 rounded-lg border border-[#dfe5ef] px-3 py-2"><input placeholder="Ask follow-up..." className="min-w-0 flex-1 text-[10px] outline-none"/><Send size={13} className="text-[#315efb]"/></div></div></aside> }
+>>>>>>> origin/main
