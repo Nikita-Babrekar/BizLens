@@ -13,19 +13,11 @@ if _parent_dir not in sys.path:
 try:
     from .database import engine
     from . import models
-<<<<<<< HEAD
     from .routers import ingest, overview, anomaly, root_cause, forecast, export, copilot
 except (ImportError, ValueError):
     from app.database import engine
     from app import models
     from app.routers import ingest, overview, anomaly, root_cause, forecast, export, copilot
-=======
-    from .routers import ingest, overview, anomaly, root_cause, forecast
-except (ImportError, ValueError):
-    from app.database import engine
-    from app import models
-    from app.routers import ingest, overview, anomaly, root_cause, forecast
->>>>>>> origin/main
 
 # Ensure SQLite database tables are created
 models.Base.metadata.create_all(bind=engine)
@@ -58,26 +50,17 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-<<<<<<< HEAD
     expose_headers=["Content-Disposition"],
 )
 
-
-=======
-)
-
->>>>>>> origin/main
 # Include core feature routers
 app.include_router(ingest.router, prefix="/api/ingest", tags=["Ingest"])
 app.include_router(overview.router, prefix="/api/overview", tags=["Overview"])
 app.include_router(anomaly.router, prefix="/api/anomaly", tags=["Anomaly"])
 app.include_router(root_cause.router, prefix="/api/root-cause", tags=["Root Cause"])
 app.include_router(forecast.router, prefix="/api/forecast", tags=["Forecast"])
-<<<<<<< HEAD
 app.include_router(export.router, prefix="/api/export", tags=["Export"])
 app.include_router(copilot.router, prefix="/api/copilot", tags=["Copilot"])
-=======
->>>>>>> origin/main
 
 
 @app.get("/", tags=["Health"])
@@ -89,13 +72,10 @@ def root():
         "endpoints": {
             "ingest": "/api/ingest/",
             "overview_kpis": "/api/overview/kpis",
-<<<<<<< HEAD
             "export_pdf": "/api/export/pdf",
             "export_excel": "/api/export/excel",
             "export_share": "/api/export/share",
             "copilot_chat": "/api/copilot/chat",
-=======
->>>>>>> origin/main
             "docs": "/docs"
         }
     }

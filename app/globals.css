@@ -1,10 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-<<<<<<< HEAD
 /* @import 'shadcn/tailwind.css'; */
-=======
-@import 'shadcn/tailwind.css';
->>>>>>> origin/main
 
 @custom-variant dark (&:is(.dark *));
 
@@ -67,4 +63,3 @@ button { cursor: pointer; }
 ::selection { background: #dce5ff; color: #15213a; }
 input[type='range'] { height: 4px; }
 @media (max-width: 767px) { main { padding-left: 0 !important; padding-right: 0 !important; } }
-
