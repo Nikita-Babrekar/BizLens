@@ -22,8 +22,8 @@ def set_active_dataset(df: pd.DataFrame, dataset_id: Optional[int] = None) -> No
 def get_active_dataset(dataset_id: Optional[int] = None) -> Optional[pd.DataFrame]:
     """Retrieves dataset by ID or returns the currently active session DataFrame."""
     with _lock:
-        if dataset_id is not None:
-            return _dataset_cache.get(dataset_id)
+        if dataset_id is not None and dataset_id in _dataset_cache:
+            return _dataset_cache[dataset_id]
         return _active_dataframe
 
 

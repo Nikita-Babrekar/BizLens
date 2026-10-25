@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '@/context/AuthContext'
 import {
   User,
   Building,
@@ -77,12 +78,18 @@ export default function ProfileSlideOver({
   const activeTab = externalTab || internalTab
   const setActiveTab = setExternalTab || setInternalTab
 
+  const { user } = useAuth()
   // Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false)
-  const [userName, setUserName] = useState('Jordan Mitchell')
+  const [userName, setUserName] = useState(user?.displayName || 'Business Owner')
   const [userTitle, setUserTitle] = useState('Founder & Workspace Admin')
-  const [userEmail, setUserEmail] = useState('jordan@bizlens.ai')
+  const [userEmail, setUserEmail] = useState(user?.email || 'admin@bizlens.ai')
   const [userPhone, setUserPhone] = useState('+1 (555) 234-8901')
+
+  useEffect(() => {
+    if (user?.displayName) setUserName(user.displayName)
+    if (user?.email) setUserEmail(user.email)
+  }, [user])
 
   // Store Switching & Editing
   const [storeDropdownOpen, setStoreDropdownOpen] = useState(false)

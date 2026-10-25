@@ -100,15 +100,17 @@ def download_pdf_report(
     """
     if payload is None:
         payload = PDFReportRequest(
-            workspace_name="My Coffee Shop",
+            workspace_name="BizLens Workspace",
             included_modules=["kpi_summary", "anomaly_logs", "forecasts"],
         )
     _validate_modules(payload.included_modules)
+    target_id = dataset_id if dataset_id is not None else (payload.dataset_id if payload else None)
+    ws_name = (payload.workspace_name if payload and payload.workspace_name else None) or "BizLens Workspace"
     try:
         pdf_bytes = generate_pdf_report(
-            workspace_name=payload.workspace_name or "My Coffee Shop",
+            workspace_name=ws_name,
             included_modules=payload.included_modules,
-            dataset_id=dataset_id,
+            dataset_id=target_id,
         )
         buf = io.BytesIO(pdf_bytes)
         buf.seek(0)
@@ -123,7 +125,7 @@ def download_pdf_report(
         ) from exc
 
     safe_name = "".join(
-        c if c.isalnum() or c in ("-", "_") else "_" for c in (payload.workspace_name or "report")
+        c if c.isalnum() or c in ("-", "_") else "_" for c in ws_name
     )
     filename = f"bizlens_report_{safe_name}.pdf"
     return StreamingResponse(
@@ -143,13 +145,13 @@ def download_pdf_report(
     tags=["Export"],
 )
 def get_pdf_report(
-    workspace_name: str = Query("My Coffee Shop", description="Name of the workspace"),
+    workspace_name: str = Query("BizLens Workspace", description="Name of the workspace"),
     modules: Optional[List[str]] = Query(None, description="Selected modules to include"),
     dataset_id: Optional[int] = Query(None, description="Scope report to a specific dataset"),
 ) -> StreamingResponse:
     """GET fallback endpoint for PDF export."""
     selected = modules or ["kpi_summary", "anomaly_logs", "forecasts"]
-    req = PDFReportRequest(workspace_name=workspace_name, included_modules=selected)
+    req = PDFReportRequest(workspace_name=workspace_name, included_modules=selected, dataset_id=dataset_id)
     return download_pdf_report(payload=req, dataset_id=dataset_id)
 
 
@@ -243,15 +245,17 @@ def download_excel_export(
     """
     if payload is None:
         payload = ExcelExportRequest(
-            workspace_name="My Coffee Shop",
+            workspace_name="BizLens Workspace",
             included_modules=["kpi_summary", "anomaly_logs", "forecasts"],
         )
     _validate_modules(payload.included_modules)
+    target_id = dataset_id if dataset_id is not None else (payload.dataset_id if payload else None)
+    ws_name = (payload.workspace_name if payload and payload.workspace_name else None) or "BizLens Workspace"
     try:
         xlsx_bytes = generate_excel_export(
-            workspace_name=payload.workspace_name or "My Coffee Shop",
+            workspace_name=ws_name,
             included_modules=payload.included_modules,
-            dataset_id=dataset_id,
+            dataset_id=target_id,
         )
         buf = io.BytesIO(xlsx_bytes)
         buf.seek(0)
@@ -266,7 +270,7 @@ def download_excel_export(
         ) from exc
 
     safe_name = "".join(
-        c if c.isalnum() or c in ("-", "_") else "_" for c in (payload.workspace_name or "export")
+        c if c.isalnum() or c in ("-", "_") else "_" for c in ws_name
     )
     filename = f"bizlens_export_{safe_name}.xlsx"
     mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

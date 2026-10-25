@@ -110,6 +110,7 @@ class PDFReportRequest(BaseModel):
         ),
         example=["kpi_summary", "anomaly_logs", "forecasts"],
     )
+    dataset_id: Optional[int] = Field(None, description="Optional dataset ID to scope report")
 
 
 class ExcelExportRequest(BaseModel):
@@ -120,6 +121,7 @@ class ExcelExportRequest(BaseModel):
         description="Modules to export as separate Excel sheets.",
         example=["kpi_summary", "anomaly_logs"],
     )
+    dataset_id: Optional[int] = Field(None, description="Optional dataset ID to scope report")
 
 
 class ShareLinkResponse(BaseModel):

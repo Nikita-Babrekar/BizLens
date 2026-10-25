@@ -17,8 +17,10 @@ import {
 
 export interface DatasetContextType {
   uploadedData: IngestionResponse | null;
+  datasetHistory: IngestionResponse[];
   metrics: KPISummary | null;
   setUploadedData: (data: IngestionResponse | null) => void;
+  selectDataset: (dataset: IngestionResponse) => Promise<void>;
   setMetrics: (metrics: KPISummary | null) => void;
   isLoadingMetrics: boolean;
   metricsError: string | null;
@@ -30,9 +32,32 @@ const DatasetContext = createContext<DatasetContextType | undefined>(undefined);
 
 const STORAGE_KEY_UPLOAD = 'bizlens_uploaded_data';
 const STORAGE_KEY_METRICS = 'bizlens_metrics_data';
+const STORAGE_KEY_HISTORY = 'bizlens_dataset_history';
+
+const DEFAULT_SAMPLE_DATASETS: IngestionResponse[] = [
+  {
+    dataset_id: 101,
+    filename: 'retail_sales_q3_2024.csv',
+    row_count: 1248,
+    rows_processed: 1248,
+    columns: ['order_id', 'date', 'gross_sales', 'region', 'product_category'],
+    cleaning_log: [],
+    cleaned_at: new Date().toISOString(),
+  },
+  {
+    dataset_id: 102,
+    filename: 'mumbai_outlet_orders.csv',
+    row_count: 840,
+    rows_processed: 840,
+    columns: ['invoice_no', 'timestamp', 'revenue', 'payment_mode', 'item_name'],
+    cleaning_log: [],
+    cleaned_at: new Date(Date.now() - 86400000).toISOString(),
+  },
+];
 
 export function DatasetProvider({ children }: { children: ReactNode }) {
   const [uploadedData, setUploadedDataState] = useState<IngestionResponse | null>(null);
+  const [datasetHistory, setDatasetHistory] = useState<IngestionResponse[]>(DEFAULT_SAMPLE_DATASETS);
   const [metrics, setMetricsState] = useState<KPISummary | null>(null);
   const [isLoadingMetrics, setIsLoadingMetrics] = useState<boolean>(false);
   const [metricsError, setMetricsError] = useState<string | null>(null);
@@ -44,6 +69,14 @@ export function DatasetProvider({ children }: { children: ReactNode }) {
       if (savedUpload) {
         const parsed = JSON.parse(savedUpload) as IngestionResponse;
         setUploadedDataState(parsed);
+      }
+
+      const savedHistory = sessionStorage.getItem(STORAGE_KEY_HISTORY);
+      if (savedHistory) {
+        const parsedHist = JSON.parse(savedHistory) as IngestionResponse[];
+        if (Array.isArray(parsedHist) && parsedHist.length > 0) {
+          setDatasetHistory(parsedHist);
+        }
       }
 
       const savedMetrics = sessionStorage.getItem(STORAGE_KEY_METRICS);
@@ -61,6 +94,18 @@ export function DatasetProvider({ children }: { children: ReactNode }) {
     try {
       if (data) {
         sessionStorage.setItem(STORAGE_KEY_UPLOAD, JSON.stringify(data));
+        setDatasetHistory((prev) => {
+          const filtered = prev.filter(
+            (d) => d.filename !== data.filename && d.dataset_id !== data.dataset_id
+          );
+          const updated = [data, ...filtered].slice(0, 8);
+          try {
+            sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
+          } catch {
+            // ignore
+          }
+          return updated;
+        });
       } else {
         sessionStorage.removeItem(STORAGE_KEY_UPLOAD);
       }
@@ -130,6 +175,14 @@ export function DatasetProvider({ children }: { children: ReactNode }) {
       }
     },
     [setMetrics]
+  );
+
+  const selectDataset = useCallback(
+    async (dataset: IngestionResponse) => {
+      setUploadedData(dataset);
+      await fetchMetricsForDataset(dataset);
+    },
+    [setUploadedData, fetchMetricsForDataset]
   );
 
   return (

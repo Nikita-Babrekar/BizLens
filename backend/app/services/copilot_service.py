@@ -17,11 +17,27 @@ from __future__ import annotations
 
 import logging
 import os
+from pathlib import Path
 import re
 import textwrap
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
+from dotenv import load_dotenv
+
+# Locate and load environment variables
+_backend_dir = Path(__file__).resolve().parent.parent.parent
+_project_root = _backend_dir.parent
+
+for candidate in [
+    _backend_dir / ".env",
+    _project_root / ".env",
+    _project_root / ".env.local",
+]:
+    if candidate.is_file():
+        load_dotenv(dotenv_path=candidate, override=False)
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +57,29 @@ except ImportError:
     _LEGACY_GENAI_AVAILABLE = False
 
 _GEMINI_MODEL = "gemini-2.5-flash"
+_GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"]
+
 
 
 def _get_api_key() -> Optional[str]:
-    return os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    """
+    Retrieve GEMINI_API_KEY (or GOOGLE_API_KEY fallback) securely from environment or .env.
+    """
+    backend_env = _backend_dir / ".env"
+    root_env = _project_root / ".env"
+
+    if backend_env.is_file():
+        load_dotenv(dotenv_path=backend_env, override=True)
+    elif root_env.is_file():
+        load_dotenv(dotenv_path=root_env, override=True)
+
+    api_key: Optional[str] = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if api_key is not None:
+        cleaned_key: str = str(api_key).strip().strip('"').strip("'")
+        if cleaned_key and cleaned_key not in ("PASTE_YOUR_GEMINI_API_KEY_HERE", "YOUR_GEMINI_API_KEY"):
+            return cleaned_key
+    return None
+
 
 
 # --------------------------------------------------------------------------- #
@@ -117,21 +152,22 @@ def _build_kpi_context(df: Optional[pd.DataFrame], workspace_name: str) -> Tuple
             (c for c in df.columns if any(k in c.lower() for k in ("order_id", "order", "id", "transaction"))),
             None,
         )
-        total_rev = float(df[rev_col].sum()) if rev_col else 0.0
+        clean_s = pd.to_numeric(df[rev_col].astype(str).str.replace(r"[$,€£¥₹\s,]", "", regex=True), errors="coerce").dropna() if rev_col else pd.Series(dtype=float)
+        total_rev = float(clean_s.sum()) if not clean_s.empty else 0.0
         total_orders = int(df[order_col].nunique()) if order_col else len(df)
         aov = (total_rev / total_orders) if total_orders else 0.0
 
         snippet = [
-            {"metric": "Total Revenue", "value": f"${total_rev:,.2f}"},
+            {"metric": "Total Revenue", "value": f"₹{total_rev:,.2f}"},
             {"metric": "Total Orders", "value": f"{total_orders:,}"},
-            {"metric": "Average Order Value", "value": f"${aov:,.2f}"},
+            {"metric": "Average Order Value", "value": f"₹{aov:,.2f}"},
             {"metric": "Total Records", "value": f"{len(df):,}"},
         ]
         ctx = (
             f"The connected dataset for '{workspace_name}' contains {len(df):,} records and {len(df.columns)} columns.\n"
-            f"- Total Revenue: ${total_rev:,.2f}\n"
+            f"- Total Revenue: ₹{total_rev:,.2f}\n"
             f"- Total Orders: {total_orders:,}\n"
-            f"- Average Order Value: ${aov:,.2f}\n"
+            f"- Average Order Value: ₹{aov:,.2f}\n"
             f"- Overall health: Positive order volume and active customer engagement."
         )
         return ctx, snippet
@@ -161,21 +197,23 @@ def _build_anomaly_context(df: Optional[pd.DataFrame], workspace_name: str) -> T
             None,
         )
         if rev_col:
-            series = df[rev_col].dropna()
-            mean, std = float(series.mean()), float(series.std())
-            if std > 0:
-                outliers = df[(df[rev_col] - mean).abs() > 2 * std][[rev_col]].head(5)
-                snippet = [
-                    {rev_col: float(v), "z_score": round((float(v) - mean) / std, 2)}
-                    for v in outliers[rev_col]
-                ]
-                ctx = (
-                    f"Anomaly detection in active dataset for '{workspace_name}':\n"
-                    f"- Metric: '{rev_col}'\n"
-                    f"- Mean: ${mean:,.2f}, Std Dev: ${std:,.2f}\n"
-                    f"- Found {len(outliers)} significant deviation windows exceeding 2 standard deviations."
-                )
-                return ctx, snippet
+            clean_rev = pd.to_numeric(df[rev_col].astype(str).str.replace(r"[$,€£¥₹\s,]", "", regex=True), errors="coerce").dropna()
+            if not clean_rev.empty:
+                mean, std = float(clean_rev.mean()), float(clean_rev.std())
+                if std > 0:
+                    z_scores = (clean_rev - mean) / std
+                    outliers = df[z_scores.abs() > 2].head(5)
+                    snippet = [
+                        {"value": f"₹{float(clean_rev.loc[idx]):,.2f}", "z_score": round(float(z_scores.loc[idx]), 2)}
+                        for idx in outliers.index
+                    ]
+                    ctx = (
+                        f"Anomaly detection in active dataset for '{workspace_name}':\n"
+                        f"- Metric: '{rev_col}'\n"
+                        f"- Mean: ₹{mean:,.2f}, Std Dev: ₹{std:,.2f}\n"
+                        f"- Found {len(outliers)} significant deviation windows exceeding 2 standard deviations."
+                    )
+                    return ctx, snippet
 
     snippet = [
         {"anomaly_id": "ANOM-NA-08", "period": "August", "drop": "-24.5%", "root_cause": "12-day supplier delivery delay on Leather Jackets"},
@@ -267,7 +305,7 @@ def _template_response(intent: str, ctx: str, workspace_name: str) -> str:
             f"I found a **12-day supplier delivery hold on Leather Jackets**, accounting for 18% of the decline.\n\n"
             f"**Root Cause Summary:**\n"
             f"- **Affected Period:** August 12 – August 24\n"
-            f"- **Impacted Metric:** North America Sales (-$28.4k)\n"
+            f"- **Impacted Metric:** North America Sales (-₹28.4k)\n"
             f"- **Resolution:** Supplier shipment cleared September 2nd; replenishment is complete."
         )
     elif intent == "kpi":
@@ -349,7 +387,8 @@ def _call_gemini_llm(
     # Strategy 1: modern google-genai SDK with gemini-2.5-flash
     if _GOOGLE_GENAI_AVAILABLE:
         try:
-            client = genai.Client(api_key=api_key)
+            gemini_api_key: str = str(api_key)
+            client = genai.Client(api_key=gemini_api_key)
             contents = []
             for turn in (history or []):
                 role = "user" if turn.get("role") == "user" else "model"
@@ -368,20 +407,26 @@ def _call_gemini_llm(
                 system_instruction=system_prompt,
                 temperature=0.3,
             )
-            response = client.models.generate_content(
-                model=_GEMINI_MODEL,
-                contents=contents,
-                config=config,
-            )
-            if response and response.text:
-                return response.text.strip()
+            for candidate_model in _GEMINI_MODELS:
+                try:
+                    response = client.models.generate_content(
+                        model=candidate_model,
+                        contents=contents,
+                        config=config,
+                    )
+                    if response and response.text:
+                        return response.text.strip()
+                except Exception as m_err:
+                    logger.info("Service model %s failed: %s; trying next", candidate_model, m_err)
+                    continue
         except Exception as exc:
             logger.warning("google-genai SDK call error (%s); trying fallback", exc)
 
     # Strategy 2: legacy google.generativeai SDK
     if _LEGACY_GENAI_AVAILABLE:
         try:
-            legacy_genai.configure(api_key=api_key)
+            gemini_api_key: str = str(api_key)
+            legacy_genai.configure(api_key=gemini_api_key)
             model = legacy_genai.GenerativeModel(
                 model_name="gemini-1.5-flash",
                 system_instruction=system_prompt,

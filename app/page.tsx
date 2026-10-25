@@ -9,6 +9,9 @@ import DatasetUploader from '@/components/DatasetUploader'
 import DynamicOverview from '@/components/DynamicOverview'
 import RootCauseEngine from '@/components/RootCauseEngine'
 import SalesForecastWhatIf from '@/components/SalesForecastWhatIf'
+import LoginScreen from '@/components/LoginScreen'
+import OnboardingModal from '@/components/OnboardingModal'
+import { useAuth } from '@/context/AuthContext'
 import { useDataset } from '@/context/DatasetContext'
 import { downloadPDFReport, downloadCleanedDatasetCSV, createReportShareLink, sendCopilotChat } from '@/lib/api'
 
@@ -34,7 +37,6 @@ const nav = [
   { id: 'predictive', label: 'Predictive intelligence', icon: WandSparkles },
   { id: 'nlq', label: 'Ask BizLens', icon: MessageSquare },
   { id: 'reports', label: 'Reports & exports', icon: FileBarChart },
-  { id: 'settings', label: 'Settings', icon: Settings },
 ]
 
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) { return <section className={`rounded-xl border border-[#e3e7ef] bg-white dark:border-[#1e293b] dark:bg-[#101a31] dark:text-[#f1f5f9] shadow-[0_1px_2px_rgba(24,35,58,.03)] transition-colors ${className}`}>{children}</section> }
@@ -42,10 +44,13 @@ function Header({ title, eyebrow, action }: { title: string; eyebrow?: string; a
 function Badge({ children, tone = 'blue' }: { children: React.ReactNode; tone?: 'blue' | 'green' | 'red' | 'amber' }) { const styles = { blue: 'bg-[#edf2ff] text-[#315efb] dark:bg-[#315efb]/20 dark:text-[#82a3ff]', green: 'bg-[#e7f8f0] text-[#14885c] dark:bg-[#10b981]/20 dark:text-[#34d399]', red: 'bg-[#fff0ee] text-[#d65347] dark:bg-[#ef4444]/20 dark:text-[#f87171]', amber: 'bg-[#fff6df] text-[#a97112] dark:bg-[#f59e0b]/20 dark:text-[#fbbf24]' }; return <span className={`inline-flex items-center rounded-md px-2 py-1 text-[10px] font-semibold ${styles[tone]}`}>{children}</span> }
 
 export default function Page() {
+  const { user, loading, shopName, setShopName, signOutUser, setShowOnboardingModal } = useAuth();
+  const workspace = shopName;
+  const setWorkspace = setShopName;
+
   const [active, setActive] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
   const [copilot, setCopilot] = useState(true);
-  const [workspace, setWorkspace] = useState('My Coffee Shop');
   const [toast, setToast] = useState('');
   const [price, setPrice] = useState(0);
   const [delay, setDelay] = useState(3);
@@ -71,12 +76,51 @@ export default function Page() {
     });
   };
 
-  const handleSignOut = () => {
-    notify('Signed out Jordan Mitchell. Redirecting to workspace login...');
+  const handleSignOut = async () => {
+    await signOutUser();
+    notify('Signed out successfully.');
   };
+
+  const shopInitials = useMemo(() => {
+    return workspace
+      .split(' ')
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase() || 'WS';
+  }, [workspace]);
+
+  const userInitials = useMemo(() => {
+    if (!user?.displayName) return 'U';
+    return user.displayName
+      .split(' ')
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase() || 'U';
+  }, [user?.displayName]);
 
   const marginImpact = useMemo(() => Math.round(18 + price * .8 - delay * 1.6 + marketing * .22), [price, delay, marketing]);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(''), 2600); };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#f8fafc] dark:bg-[#0b0f19] text-[#0f172a] dark:text-white">
+        <div className="relative mb-4 flex items-center justify-center">
+          <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-tr from-[#315efb] to-[#4f46e5] text-white shadow-lg shadow-[#315efb]/25 animate-pulse">
+            <BrainCircuit size={28} />
+          </div>
+        </div>
+        <p className="text-sm font-semibold tracking-wide text-[#315efb] dark:text-[#82a3ff]">Connecting to BizLens workspace...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
+  }
 
   const handleSendChat = async (promptText?: string) => {
     const textToSend = (typeof promptText === 'string' ? promptText : chat).trim();
@@ -193,22 +237,26 @@ export default function Page() {
             aria-haspopup="true"
             aria-expanded={profileDropdownOpen}
           >
-            <div className="grid size-9 place-items-center rounded-full bg-gradient-to-tr from-[#315efb] to-[#6366f1] text-[12px] font-bold text-white shadow-md shadow-[#315efb]/25 ring-2 ring-transparent group-hover:ring-[#315efb] transition-all">
-              JD
-            </div>
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName || 'User'}
+                className="size-9 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#315efb] transition-all"
+              />
+            ) : (
+              <div className="grid size-9 place-items-center rounded-full bg-gradient-to-tr from-[#315efb] to-[#6366f1] text-[12px] font-bold text-white shadow-md shadow-[#315efb]/25 ring-2 ring-transparent group-hover:ring-[#315efb] transition-all">
+                {userInitials}
+              </div>
+            )}
             <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-white bg-[#10b981] dark:border-[#0c1426]" />
           </button>
 
-          {/* Slick Profile Dropdown Menu */}
+          {/* Streamlined Profile Dropdown Popover */}
           <ProfileDropdown
             isOpen={profileDropdownOpen}
             onClose={() => setProfileDropdownOpen(false)}
             currentWorkspace={workspace}
-            onSwitchWorkspace={(w) => setWorkspace(w)}
-            onOpenSlideOver={(tab) => {
-              if (tab) setProfileActiveTab(tab);
-              setProfileSlideOverOpen(true);
-            }}
+            onOpenEditShop={() => setShowOnboardingModal(true)}
             isDarkMode={isDarkMode}
             onToggleTheme={toggleTheme}
             notify={notify}
@@ -218,9 +266,140 @@ export default function Page() {
       </div>
     </header>
 
-    <aside className={`fixed bottom-0 left-0 top-[66px] z-30 hidden border-r border-[#e3e7ef] dark:border-[#1e293b] bg-[#101a31] text-white transition-all md:block ${collapsed ? 'w-[72px]' : 'w-[250px]'}`}><div className="flex h-full flex-col p-3"><div className={`mb-6 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-2 pt-2`}>{!collapsed && <span className="text-[10px] font-semibold uppercase tracking-[.15em] text-[#8491ac]">Workspace</span>}<button onClick={() => setCollapsed(!collapsed)} className="text-[#96a4bf] hover:text-white" aria-label="Collapse navigation">{collapsed ? <ChevronRight size={17}/> : <ChevronLeft size={17}/>}</button></div>{!collapsed && <button onClick={() => { setProfileActiveTab('profile'); setProfileSlideOverOpen(true); }} title="Click to manage store workspace" className="mb-5 flex items-center gap-2 rounded-lg bg-[#1b2948] px-3 py-2.5 text-left text-[12px] text-white hover:bg-[#23355c] transition"><span className="grid size-6 place-items-center rounded bg-[#e2e8ff] text-[10px] font-bold text-[#315efb]">MC</span><span className="flex-1 truncate">{workspace}</span><ChevronDown size={13} className="text-[#93a0bb]"/></button>}<nav className="flex flex-col gap-1">{nav.map(item => { const Icon = item.icon; return <button key={item.id} onClick={() => setActive(item.id)} title={item.label} className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition ${active === item.id ? 'bg-[#315efb] font-semibold text-white shadow-[0_6px_16px_rgba(49,94,251,.22)]' : 'text-[#aeb9cf] hover:bg-[#1b2948] hover:text-white'} ${collapsed ? 'justify-center' : ''}`}><Icon size={17}/>{!collapsed && <span>{item.label}</span>}{item.id === 'rootcause' && !collapsed && <span className="ml-auto size-1.5 rounded-full bg-[#ef6357]"/>}</button>})}</nav><div className="mt-auto rounded-xl bg-[#182642] p-3">{!collapsed ? <><div className="mb-2 flex items-center gap-2 text-[11px] font-semibold"><Bot size={15} className="text-[#8ea7ff]"/> AI co-pilot</div><p className="text-[10px] leading-4 text-[#93a0bb]">Your data is clean and ready. I found one anomaly worth investigating.</p><button onClick={() => setCopilot(true)} className="mt-3 text-[10px] font-semibold text-[#8ea7ff]">Open assistant →</button></> : <Bot size={17} className="mx-auto text-[#8ea7ff]"/>}</div></div></aside>
-    <main className={`min-h-screen pt-[66px] transition-all ${collapsed ? 'md:pl-[72px]' : 'md:pl-[250px]'} ${copilot ? 'md:pr-[320px]' : ''}`}><div className="mx-auto max-w-[1400px] p-5 md:p-8">{active === 'dashboard' && <Dashboard notify={notify} onGoToIngestion={() => setActive('ingestion')}/>} {active === 'ingestion' && <Ingestion notify={notify} onNavigateToOverview={() => setActive('dashboard')}/>} {active === 'rootcause' && <RootCause notify={notify} onGoToIngestion={() => setActive('ingestion')}/>} {active === 'predictive' && <Predictive notify={notify}/>} {active === 'nlq' && <NLQ chat={chat} setChat={setChat} messages={messages} handleSendChat={handleSendChat} isLoading={isChatLoading}/>} {active === 'reports' && <Reports notify={notify} workspace={workspace}/>} {active === 'settings' && <SettingsView notify={notify} onOpenAccountCenter={(tab) => { setProfileActiveTab(tab); setProfileSlideOverOpen(true); }}/>}</div></main>
-    {copilot && <Copilot onClose={() => setCopilot(false)} messages={messages} handleSendChat={handleSendChat} isLoading={isChatLoading} />}{!copilot && <button onClick={() => setCopilot(true)} className="fixed bottom-5 right-5 z-20 grid size-12 place-items-center rounded-full bg-[#315efb] text-white shadow-lg"><Bot size={20}/></button>}{toast && <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-[#15213a] px-4 py-3 text-xs font-medium text-white shadow-xl">{toast}</div>}
+    <aside
+      className={`fixed bottom-0 left-0 top-[66px] z-30 hidden border-r border-[#e3e7ef] dark:border-[#1e293b] bg-[#101a31] text-white transition-all md:block ${
+        collapsed ? 'w-[72px]' : 'w-[250px]'
+      }`}
+    >
+      <div className="flex h-full flex-col p-3">
+        <div className={`mb-6 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-2 pt-2`}>
+          {!collapsed && (
+            <span className="text-[10px] font-semibold uppercase tracking-[.15em] text-[#8491ac]">
+              Workspace
+            </span>
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-[#96a4bf] hover:text-white"
+            aria-label="Collapse navigation"
+          >
+            {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
+          </button>
+        </div>
+
+        {!collapsed && (
+          <button
+            onClick={() => setShowOnboardingModal(true)}
+            title="Click to rename workspace / shop name"
+            className="mb-5 flex items-center gap-2 rounded-lg bg-[#1b2948] px-3 py-2.5 text-left text-[12px] text-white hover:bg-[#23355c] transition"
+          >
+            <span className="grid size-6 place-items-center rounded bg-[#e2e8ff] text-[10px] font-bold text-[#315efb]">
+              {shopInitials}
+            </span>
+            <span className="flex-1 truncate">{workspace}</span>
+            <ChevronDown size={13} className="text-[#93a0bb]" />
+          </button>
+        )}
+
+        <nav className="flex flex-col gap-1">
+          {nav.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActive(item.id)}
+                title={item.label}
+                className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition ${
+                  active === item.id
+                    ? 'bg-[#315efb] font-semibold text-white shadow-[0_6px_16px_rgba(49,94,251,.22)]'
+                    : 'text-[#aeb9cf] hover:bg-[#1b2948] hover:text-white'
+                } ${collapsed ? 'justify-center' : ''}`}
+              >
+                <Icon size={17} />
+                {!collapsed && <span>{item.label}</span>}
+                {item.id === 'rootcause' && !collapsed && (
+                  <span className="ml-auto size-1.5 rounded-full bg-[#ef6357]" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="mt-auto rounded-xl bg-[#182642] p-3">
+          {!collapsed ? (
+            <>
+              <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold">
+                <Bot size={15} className="text-[#8ea7ff]" /> AI co-pilot
+              </div>
+              <p className="text-[10px] leading-4 text-[#93a0bb]">
+                Your data is clean and ready. I found one anomaly worth investigating.
+              </p>
+              <button onClick={() => setCopilot(true)} className="mt-3 text-[10px] font-semibold text-[#8ea7ff]">
+                Open assistant →
+              </button>
+            </>
+          ) : (
+            <Bot size={17} className="mx-auto text-[#8ea7ff]" />
+          )}
+        </div>
+      </div>
+    </aside>
+
+    <main
+      className={`min-h-screen pt-[66px] transition-all ${
+        collapsed ? 'md:pl-[72px]' : 'md:pl-[250px]'
+      } ${copilot ? 'md:pr-[320px]' : ''}`}
+    >
+      <div className="mx-auto max-w-[1400px] p-5 md:p-8">
+        {active === 'dashboard' && <Dashboard notify={notify} onGoToIngestion={() => setActive('ingestion')} />}
+        {active === 'ingestion' && <Ingestion notify={notify} onNavigateToOverview={() => setActive('dashboard')} />}
+        {active === 'rootcause' && <RootCause notify={notify} onGoToIngestion={() => setActive('ingestion')} />}
+        {active === 'predictive' && <Predictive notify={notify} />}
+        {active === 'nlq' && (
+          <NLQ
+            chat={chat}
+            setChat={setChat}
+            messages={messages}
+            handleSendChat={handleSendChat}
+            isLoading={isChatLoading}
+          />
+        )}
+        {active === 'reports' && <Reports notify={notify} workspace={workspace} />}
+        {active === 'settings' && (
+          <SettingsView
+            notify={notify}
+            onOpenAccountCenter={(tab) => {
+              setProfileActiveTab(tab);
+              setProfileSlideOverOpen(true);
+            }}
+          />
+        )}
+      </div>
+    </main>
+
+    {copilot && (
+      <Copilot
+        onClose={() => setCopilot(false)}
+        messages={messages}
+        handleSendChat={handleSendChat}
+        isLoading={isChatLoading}
+      />
+    )}
+
+    {!copilot && (
+      <button
+        onClick={() => setCopilot(true)}
+        className="fixed bottom-5 right-5 z-20 grid size-12 place-items-center rounded-full bg-[#315efb] text-white shadow-lg"
+      >
+        <Bot size={20} />
+      </button>
+    )}
+
+    {toast && (
+      <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-[#15213a] px-4 py-3 text-xs font-medium text-white shadow-xl">
+        {toast}
+      </div>
+    )}
 
     {/* Full Slide-Over Modal for Comprehensive Account & Workspace Center */}
     <ProfileSlideOver
@@ -235,6 +414,9 @@ export default function Page() {
       notify={notify}
       onSignOut={handleSignOut}
     />
+
+    {/* Dynamic Shop Onboarding Modal */}
+    <OnboardingModal />
   </div>
 }
 

@@ -629,5 +629,40 @@ export async function sendCopilotChat(
   return await response.json();
 }
 
+/**
+ * Synchronizes authenticated user identity with the FastAPI backend database.
+ * Upserts the record into the SQLite users table.
+ */
+export async function syncUserToBackend(user: {
+  id?: string | number;
+  google_uid?: string;
+  name?: string | null;
+  email?: string | null;
+}): Promise<any> {
+  if (!user.email) return null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/users/sync`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: user.id || user.google_uid,
+        google_uid: user.google_uid || (typeof user.id === "string" ? user.id : undefined),
+        name: user.name || "Business Owner",
+        email: user.email,
+      }),
+    });
+    if (!res.ok) {
+      console.warn("User sync API returned status:", res.status);
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn("Could not sync user to FastAPI backend database:", err);
+    return null;
+  }
+}
+
 
 

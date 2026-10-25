@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { AuthProvider } from '@/context/AuthContext'
 import { DatasetProvider } from '@/context/DatasetContext'
 import './globals.css'
 
@@ -15,7 +16,6 @@ export const metadata: Metadata = {
       },
       {
         url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
       },
       {
         url: '/icon.svg',
@@ -42,9 +42,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <DatasetProvider>
-          {children}
-        </DatasetProvider>
+        <AuthProvider>
+          <DatasetProvider>
+            {children}
+          </DatasetProvider>
+        </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
