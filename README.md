@@ -8,19 +8,42 @@ BizLens is an AI-powered business analytics and decision-support web platform de
 
 * **Secure Authentication:** Integrated Google OAuth (via Firebase) with enforced route protection to secure dashboard access.
 * **User & Shop Management:** Automatically syncs authenticated user profiles to a dedicated database table and features an intuitive shop-naming and onboarding flow.
-* **Smart Analytics & Forecasting:** Upload CSV datasets to inspect operational metrics, track historical uploads, and run automated forecasting tools[cite: 1, 3].
-* **Interactive AI Chatbot:** Engage with built-in assistant workflows to analyze dataset performance and query operational root-causes[cite: 1].
-* **Data Export & Management:** Flexible data exporting features and instant one-click switching between historical CSV datasets[cite: 1].
-* **Minimalist UI/UX:** Clean, modern sidebar navigation and a streamlined profile popover with integrated dark/light mode toggles[cite: 1].
+* **Smart Analytics & Forecasting:** Upload CSV datasets to inspect operational metrics, track historical uploads, and run automated forecasting tools.
+* **Interactive AI Chatbot:** Engage with built-in assistant workflows to analyze dataset performance and query operational root-causes.
+* **Data Export & Management:** Flexible data exporting features and instant one-click switching between historical CSV datasets.
+* **Minimalist UI/UX:** Clean, modern sidebar navigation and a streamlined profile popover with integrated dark/light mode toggles.
 
 ---
 
 ## 🛠️ Tech Stack
 
-* <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white" /> <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" /> <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" /> <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" /> **Frontend:** Next.js (React), Tailwind CSS, TypeScript
-* <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white" /> <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" /> **Backend:** Python FastAPI, Uvicorn
-* <img src="https://img.shields.io/badge/SQLite-07405e?style=for-the-badge&logo=sqlite&logoColor=white" /> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" /> <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" /> **Database & Auth:** SQLite / MySQL, Firebase Authentication (Google OAuth 2.0)
-* <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" /> <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" /> <img src="https://img.shields.io/badge/Scikit_Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" /> **Data Science & Processing:** Pandas, NumPy, DuckDB, Scikit-learn
+* **Frontend:** 
+  <p style="margin-top: 5px;">
+    <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white" />
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+  </p>
+
+* **Backend:** 
+  <p style="margin-top: 5px;">
+    <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white" />
+    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  </p>
+
+* **Database & Auth:** 
+  <p style="margin-top: 5px;">
+    <img src="https://img.shields.io/badge/SQLite-07405e?style=for-the-badge&logo=sqlite&logoColor=white" />
+    <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+    <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" />
+  </p>
+
+* **Data Science & Processing:** 
+  <p style="margin-top: 5px;">
+    <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" />
+    <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" />
+    <img src="https://img.shields.io/badge/Scikit_Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" />
+  </p>
 
 ---
 
@@ -28,7 +51,7 @@ BizLens is an AI-powered business analytics and decision-support web platform de
 
 ```text
 bizlens-main/
-├── app/                  # Next.js frontend pages and API routes (overview, forecast, ingestion)
+├── app/                  # Next.js frontend pages and API routes
 ├── backend/              # FastAPI backend application, routes, and business logic
 ├── components/           # Reusable UI components (ProfileDropdown, navigation, modals)
 ├── context/              # React Context providers (AuthContext, DatasetContext)
@@ -36,61 +59,94 @@ bizlens-main/
 ├── public/               # Static assets and images
 ├── .env.local            # Local environment variables (Ignored in version control)
 ├── .gitignore            # Git exclusion rules
+├── README.md             # Project documentation
+└── package.json          # Frontend dependencies and scripts
+```
 
-⚙️ Getting Started & Installation
-Follow these steps to set up and run the project locally on your machine.
+---
 
-1. Clone the Repository
-Bash
-git clone [https://github.com/your-username/bizlens.git](https://github.com/your-username/bizlens.git)
-cd bizlens-main
-2. Configure Environment Variables
-Create a .env.local file in the root directory and add your Firebase credentials[cite: 1]:
+## ⚙️ Installation & Setup
 
-Code snippet
+### Prerequisites
+* Node.js (v18+)
+* Python (v3.10+)
+* Git
+
+---
+
+### 1. Setup Backend
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Create and activate a Python virtual environment:
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Create a `.env` file in the `backend/` directory and configure your environment variables:
+```env
+DATABASE_URL=sqlite:///./bizlens.db
+```
+
+5. Run the FastAPI server:
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+---
+
+### 2. Setup Frontend
+
+1. Navigate back to the root directory:
+```bash
+cd ..
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+pnpm install
+```
+
+3. Configure environment variables in `.env.local`:
+```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-3. Install Frontend Dependencies
-Bash
-npm install
-# or
-pnpm install
-4. Run the Development Server
-Start the Next.js frontend development server:
+```
 
-Bash
+4. Run the development server:
+```bash
 npm run dev
 # or
 pnpm dev
-Open http://localhost:3000 in your browser to view the application.
+```
 
-5. Start the Backend Server
-Navigate to the backend directory, set up your python environment, and start FastAPI:
+---
 
-Bash
-cd backend
-# (Optional) Create and activate a virtual environment
-python -m venv venv
-# On Windows:
-source venv/Scripts/activate
-# On macOS/Linux:
-source venv/bin/activate
+## 🔒 Security & Privacy Notice
+* Sensitive environment keys (`.env` and `.env.local`) and local development databases (`*.db`) are strictly excluded from version control via `.gitignore`. 
+* Never push credentials or raw local databases to public repositories.
 
-pip install -r requirements.txt
-uvicorn main:app --reload
-🔒 Security & Privacy Notice
-Sensitive environment keys (.env and .env.local) and local development databases (*.db) are strictly excluded from version control via .gitignore.
+---
 
-Never push credentials or raw local databases to public repositories.
-
-📄 License
-This project is open-source and available under the MIT License.
-
-
-<FollowUp function="Is this README format with the colorful tech stack badges looking clean
-├── README.md             # Project documentation
-└── package.json          # Frontend dependencies and scripts<img width="1887" height="499" alt="image" src="https://github.com/user-attachments/assets/20b7e682-8d07-48ff-9ae9-2068f5c23f96" />
+## 📄 License
+This project is open-source and available under the [MIT License](LICENSE).
