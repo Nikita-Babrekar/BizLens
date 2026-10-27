@@ -12,6 +12,7 @@ __v0_jsx-dev-runtime.ts
 .env
 .env.*
 !.env.example
+.env.local
 
 # Common ignores
 node_modules/
@@ -28,6 +29,8 @@ __pycache__/
 
 # Local databases
 *.db
+*.db
+backend/bizlens.db
 
 # Build files
 *.tsbuildinfo
