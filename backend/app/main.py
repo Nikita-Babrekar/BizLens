@@ -1,9 +1,14 @@
 import os
 import sys
+import logging
 from contextlib import asynccontextmanager
 # pyrefly: ignore[missing-import]
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Structured logging for production visibility (Render logs)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("bizlens")
 
 # Ensure parent package is discoverable when run directly as a script
 _current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,8 +31,11 @@ models.Base.metadata.create_all(bind=engine)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Ensure tables exist on startup
+    logger.info("BizLens API starting up — creating database tables...")
     models.Base.metadata.create_all(bind=engine)
+    logger.info("BizLens API ready.")
     yield
+    logger.info("BizLens API shutting down.")
 
 
 app = FastAPI(
@@ -37,17 +45,20 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration allowing frontend clients (e.g. Next.js on localhost or production deployment)
+# CORS configuration allowing frontend clients
+# - Localhost for development
+# - Exact Vercel production URL
+# - Regex to allow ALL Vercel preview deployments (*.vercel.app)
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://biz-lens-lake.vercel.app"
+    "https://biz-lens-lake.vercel.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=r"^https://.*\.vercel\.app$|^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

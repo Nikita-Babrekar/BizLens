@@ -8,11 +8,10 @@ __v0_jsx-dev-runtime.ts
 .vercel/
 
 # Environment variables
-.env*.local
 .env
 .env.*
+.env*.local
 !.env.example
-.env.local
 
 # Common ignores
 node_modules/
@@ -24,29 +23,12 @@ backend/venv/
 venv/
 
 # Python cache
-__pycache__/
+**/__pycache__/
 *.py[cod]
 
 # Local databases
-*.db
 *.db
 backend/bizlens.db
 
 # Build files
 *.tsbuildinfo
-
-# Python environment and cache
-backend/venv/
-**/__pycache__/
-*.py[cod]
-
-# Local database
-backend/bizlens.db
-
-# Python environment and cache
-backend/venv/
-**/__pycache__/
-*.py[cod]
-
-# Local database
-backend/bizlens.db
