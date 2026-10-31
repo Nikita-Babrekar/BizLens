@@ -11,6 +11,8 @@ import React, {
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   type User as FirebaseUser,
@@ -120,6 +122,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Check if user returned from redirect auth
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          const fbUser = result.user;
+          const mappedUser: AuthUser = {
+            uid: fbUser.uid,
+            displayName: fbUser.displayName || fbUser.email?.split('@')[0] || 'Google User',
+            email: fbUser.email,
+            photoURL: fbUser.photoURL,
+          };
+          setUser(mappedUser);
+          loadUserShopName(mappedUser.uid);
+          syncUserToBackend({
+            id: mappedUser.uid,
+            google_uid: mappedUser.uid,
+            name: mappedUser.displayName,
+            email: mappedUser.email,
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn('Firebase redirect check:', err);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {
       if (fbUser) {
         const mappedUser: AuthUser = {
@@ -191,9 +218,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        if (err.code === 'auth/popup-blocked') {
+          try {
+            await signInWithRedirect(auth, provider);
+            return;
+          } catch (redirErr: any) {
+            setAuthError('Popup was blocked by your browser. Please allow popups or try again.');
+            setLoading(false);
+            return;
+          }
+        }
+
         if (err.code === 'auth/unauthorized-domain') {
+          const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'biz-lens-lake.vercel.app';
           setAuthError(
-            'Domain not authorized in Firebase. In Firebase Console, go to Authentication > Settings > Authorized Domains and ensure "localhost" is listed.'
+            `Domain "${currentHost}" is not authorized in Firebase. In Firebase Console (bizlens-983ae), go to Authentication > Settings > Authorized Domains and click "Add domain" for "${currentHost}".`
+          );
+          setLoading(false);
+          return;
+        }
+
+        if (err.code === 'auth/operation-not-allowed') {
+          setAuthError(
+            'Google Sign-in is not enabled in Firebase. In Firebase Console (bizlens-983ae), go to Authentication > Sign-in method, click Google, and enable it.'
           );
           setLoading(false);
           return;
@@ -201,7 +248,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (err.code === 'auth/api-key-not-valid' || err.code === 'auth/invalid-api-key') {
           setAuthError(
-            'Firebase API key in .env.local is not valid. You can provide your active Firebase Web API key or click below to continue with Test Google Account.'
+            'Firebase API key is not valid. Please verify your Firebase project credentials.'
           );
           setLoading(false);
           return;
