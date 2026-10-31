@@ -7,6 +7,7 @@ fastapi==0.110.0
 uvicorn[standard]==0.28.0
 python-multipart==0.0.9
 pydantic==2.6.4
+starlette>=0.36.0
 
 # Database
 sqlalchemy==2.0.28
@@ -20,9 +21,14 @@ openpyxl==3.1.2
 reportlab>=4.0
 xlsxwriter>=3.1.0
 
+# AI Copilot (Gemini)
+google-genai>=1.0.0
+google-generativeai>=0.8.0
+
+# ML (optional but imported)
+scikit-learn>=1.4.0
+
 # HTTP / Environment
 python-dotenv==1.0.1
 requests>=2.31.0
-
-# Production Server
-gunicorn>=21.2.0
+httpx>=0.27.0
