@@ -5,8 +5,13 @@
  * Supports environment variables with graceful fallback for local development.
  */
 
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  setPersistence,
+  browserLocalPersistence,
+  type Auth,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'demo-api-key',
@@ -36,6 +41,9 @@ googleProvider.setCustomParameters({
 try {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
+  if (typeof window !== 'undefined' && auth) {
+    setPersistence(auth, browserLocalPersistence).catch(() => {});
+  }
 } catch (error) {
   // Graceful fallback for non-browser / mock environment
   try {

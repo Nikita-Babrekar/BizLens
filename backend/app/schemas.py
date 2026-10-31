@@ -153,6 +153,8 @@ class CopilotRequest(BaseModel):
     )
     dataset_id: Optional[int] = Field(None, description="Dataset ID to scope analysis to")
     workspace_name: Optional[str] = Field("My Business", description="Workspace context label")
+    user_id: Optional[str] = Field(None, description="Authenticated user ID or Google UID")
+    user_email: Optional[str] = Field(None, description="Authenticated user email")
 
 
 class CopilotResponse(BaseModel):

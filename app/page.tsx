@@ -147,6 +147,8 @@ export default function Page() {
         conversation_history: history,
         workspace_name: workspace,
         dataset_id: uploadedData?.dataset_id ?? undefined,
+        user_id: user?.uid,
+        user_email: user?.email,
       });
 
       let sqlSnippet: string | undefined;
@@ -937,7 +939,7 @@ function Copilot({
           </div>
           <div>
             <p className="text-[12px] font-semibold text-[#15213a] dark:text-white">AI Co-pilot</p>
-            <p className="text-[9px] text-[#8c97aa]">Live Gemini 2.5 Flash</p>
+            <p className="text-[9px] text-[#8c97aa]">Live Gemini 3.5 Flash</p>
           </div>
         </div>
         <button

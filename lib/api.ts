@@ -3,8 +3,8 @@
  * Provides typed interaction with the FastAPI backend services.
  */
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_BASE_URL = rawApiUrl.trim().replace(/\/+$/, "");
 
 export interface CleaningLogEntry {
   action: string;
@@ -583,6 +583,8 @@ export interface CopilotChatPayload {
   conversation_history?: CopilotMessagePayload[];
   dataset_id?: number | null;
   workspace_name?: string;
+  user_id?: string | null;
+  user_email?: string | null;
 }
 
 export interface CopilotChatResponse {

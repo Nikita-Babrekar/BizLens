@@ -56,8 +56,13 @@ try:
 except ImportError:
     _LEGACY_GENAI_AVAILABLE = False
 
-_GEMINI_MODEL = "gemini-2.5-flash"
-_GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"]
+_GEMINI_MODEL = "gemini-3.5-flash"
+_GEMINI_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-flash-latest",
+]
 
 
 

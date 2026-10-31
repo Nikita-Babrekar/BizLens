@@ -57,9 +57,14 @@ except (ImportError, ValueError):
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-_GEMINI_MODEL = "gemini-2.5-flash"
-_GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"]
-DEMO_NOTICE = "\n\n> ℹ️ *[Demo Mode: Add GEMINI_API_KEY in backend/.env for live Gemini 2.5 Flash responses]*"
+_GEMINI_MODEL = "gemini-3.5-flash"
+_GEMINI_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-flash-latest",
+]
+DEMO_NOTICE = "\n\n> ℹ️ *[Demo Mode: Add GEMINI_API_KEY in Render Environment Variables for live Gemini responses]*"
 
 
 
